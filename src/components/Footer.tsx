@@ -1,14 +1,39 @@
-import { MessageCircle, Mail, Phone, Castle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MessageCircle, Mail, Phone, Castle, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "../lib/supabase";
 
 // TODO: keep in sync with the invite link used on the Packages page
 const DISCORD_INVITE_URL = "https://discord.gg/YACFe6n2QY";
 
 export default function Footer() {
+  const [visitCount, setVisitCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      // Increment visit count once per session
+      if (!sessionStorage.getItem("visit_counted")) {
+        const { data } = await supabase.rpc("increment_visit_count");
+        if (data !== null) {
+          setVisitCount(Number(data));
+          sessionStorage.setItem("visit_counted", "1");
+          return;
+        }
+      }
+      // Already counted this session — just fetch current
+      const { data } = await supabase
+        .from("site_stats")
+        .select("visit_count")
+        .eq("id", 1)
+        .single();
+      if (data) setVisitCount(Number(data.visit_count));
+    })();
+  }, []);
+
   return (
     <footer className="border-t border-night-700 bg-night-950">
       <div className="container-game py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <img src="/logo.png" alt="Aman's Store" className="w-8 h-8" />
@@ -102,6 +127,27 @@ export default function Footer() {
                 <span>IC€man &middot; K21</span>
               </li>
             </ul>
+          </div>
+
+          <div>
+            <h4 className="heading-display text-sm font-semibold text-white mb-4">
+              Site Stats
+            </h4>
+            <div className="flex items-center gap-2.5 text-sm text-gray-500">
+              <Eye className="w-4 h-4 text-gold-400" />
+              <span>
+                {visitCount !== null ? (
+                  <>
+                    <span className="heading-display font-bold text-gold-300">
+                      {visitCount.toLocaleString()}
+                    </span>{" "}
+                    visits
+                  </>
+                ) : (
+                  <span className="text-gray-600">Loading visits...</span>
+                )}
+              </span>
+            </div>
           </div>
         </div>
         <div className="mt-10 pt-8 border-t border-night-700 text-center text-sm text-gray-600">
