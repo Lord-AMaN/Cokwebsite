@@ -1,0 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cinzel:wght@600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: #080506;
+    color: #d1d5db;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(120,13,13,0.10), transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(204,85,0,0.05), transparent 50%);
+    background-attachment: fixed;
+  }
+}
+ 
+@layer components {
+  .container-game { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+  .heading-display { font-family: 'Cinzel', Georgia, serif; letter-spacing: 0.015em; }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 active:scale-95;
+    font-family: 'Cinzel', Georgia, serif;
+    background-color: #c01818;
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background-color: #d93333;
+    transform: translateY(-1px);
+  }
+
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 active:scale-95;
+    font-family: 'Cinzel', Georgia, serif;
+    background-color: #d4a017;
+    color: #100808;
+  }
+  .btn-gold:hover {
+    background-color: #f0c84a;
+    transform: translateY(-1px);
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 active:scale-95;
+    font-family: 'Cinzel', Georgia, serif;
+    border: 1px solid #33373c;
+    color: #d1d5db;
+    background-color: rgba(17,18,20,0.6);
+  }
+  .btn-outline:hover {
+    border-color: #c01818;
+    color: #f0c84a;
+    background-color: rgba(120,13,13,0.1);
+  }
+
+  .card-game {
+    @apply relative rounded-xl transition-all duration-300 overflow-hidden;
+    border: 1px solid #221212;
+    background-color: rgba(16,8,8,0.85);
+  }
+  .card-game:hover {
+    border-color: rgba(192,24,24,0.4);
+    transform: translateY(-3px);
+  }
+
+  .badge-rarity-Common { color: #9ca3af; border-color: rgba(107,114,128,0.4); background-color: rgba(107,114,128,0.1); }
+  .badge-rarity-Rare { color: #60a5fa; border-color: rgba(59,130,246,0.4); background-color: rgba(59,130,246,0.1); }
+  .badge-rarity-Epic { color: #c084fc; border-color: rgba(168,85,247,0.4); background-color: rgba(168,85,247,0.1); }
+  .badge-rarity-Legendary { color: #f0c84a; border-color: rgba(212,160,23,0.5); background-color: rgba(212,160,23,0.1); }
+
+  .input-game {
+    @apply w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none;
+    border: 1px solid #33373c;
+    background-color: #100808;
+    color: #d1d5db;
+  }
+  .input-game::placeholder { color: #6b7280; }
+  .input-game:focus {
+    border-color: #c01818;
+  }
+
+  .label-game { @apply block text-sm font-semibold mb-1.5; color: #9ca3af; }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #f0c84a, #d4a017, #c08800);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .text-gradient-crimson {
+    background: linear-gradient(135deg, #e86060, #c01818, #7a0d0d);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #080506; }
+::-webkit-scrollbar-thumb { background: #2e1818; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #3d2020; }
