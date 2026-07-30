@@ -68,7 +68,7 @@ export default function Hero() {
     {/* Text Container: Flex column stacks the two lines vertically */}
     <div className="flex flex-col text-left">
       <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
-         Short on Food<img src="/wheat.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or Mithril<img src="/iron.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or others ?  
+         Short on Food<img src="/wheat.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or Mithril<img src="/iron1.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or others ?  
       </p>
     </div>
     
