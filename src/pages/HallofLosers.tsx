@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader, Skull, Frown, Siren, Quote, Flag, Crown, Trash2, ChevronDown } from 'lucide-react';
+import { Loader, Skull, Frown, Siren, Quote, Flag, Phone , Crown, Trash2, ChevronDown } from 'lucide-react';
 import type { HallOfLoser } from '../lib/types';
 
 const shameLabel = (score: number) => {
@@ -68,7 +68,7 @@ export default function HallOfLosers() {
                     <img
                       src="/crown.png"
                       alt="Rusty crown"
-                      className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 w-36 h-28 object-contain pointer-events-none drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]"
+                      className="absolute -top-8 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 w-58 h-48 object-contain pointer-events-none drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]"
                     />
                   )}
 
@@ -122,14 +122,20 @@ export default function HallOfLosers() {
                   </div>
 
                   <div className="p-5 pt-4">
-                    <div className="inline-flex items-center gap-1.5 mb-4 px-2.5 py-1.5 rounded-full text-xs font-semibold border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-300">
+                    <div className="inline-flex items-center gap-1.5 mb-4 px-3.5 py-3.5 rounded-full text-xs font-semibold border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-300">
                       <Trash2 className="w-3 h-3" /> {entry.title}
+                      
                     </div>
-
-                    {entry.quote && (
+                       {entry.quote && (
                       <div className="flex items-start gap-2 mb-4 rounded-lg bg-black/30 border border-white/5 px-3 py-2">
                         <Phone className="w-3.5 h-3.5 text-fuchsia-500/60 flex-shrink-0 mt-0.5" />
-                        <p className="text-xs text-gray-400 italic leading-relaxed">{entry.quote}</p>
+                        <p className="text-x text-green-400 bold leading-relaxed">{entry.number}</p>
+                      </div>
+                    )}
+                    {entry.quote && (
+                      <div className="flex items-start gap-2 mb-4 rounded-lg bg-black/30 border border-white/5 px-3 py-2">
+                        <Quote className="w-3.5 h-3.5 text-fuchsia-500/60 flex-shrink-0 mt-0.5" />
+                        <p className="text-xs text-gray-400 bold leading-relaxed">{entry.quote}</p>
                       </div>
                     )}
 
@@ -171,13 +177,13 @@ export default function HallOfLosers() {
                             <p className="text-sm text-gray-300 leading-relaxed">{entry.crime}</p>
                           </div>
 
-                          {entry.evidence_photos && (
-                            <img
-                              src={entry.evidence_photos}
-                              alt={`${entry.ign} crime evidence`}
-                              className="max-w-full h-auto w-auto rounded-md border border-white/10 mx-auto"
-                            />
-                          )}
+                         {entry.evidence_photos && (
+  <img
+    src={entry.evidence_photos}
+    alt={`${entry.ign} crime evidence`}
+    className="max-w-full h-auto w-auto rounded-md border border-white/10 mx-auto"
+  />
+)}
                         </div>
                       )}
                     </div>
