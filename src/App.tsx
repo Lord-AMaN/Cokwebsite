@@ -12,6 +12,7 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import TrackOrder from './pages/TrackOrder';
 import Resources from './pages/Resources';
+import HallOfLosers from './pages/HallofLosers';
 import Consultation from './pages/Consultation';
 import Admin from './pages/Admin';
 import { CartProvider } from './context/CartContext';
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/castles" element={<Castles />} />
             <Route path="/bot-farms" element={<BotFarms />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/hall-of-losers" element={<HallOfLosers />} />
             <Route path="/guides" element={<GameGuides />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />

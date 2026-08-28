@@ -37,4 +37,20 @@ export type Consultation = {
   created_at: string;
 };
 
+export type HallOfLoser = {
+  id: string;
+  ign: string;
+  kingdom: string | null;
+  title: string;
+  crime: string;
+  quote: string | null;
+  photo_url: string | null;
+  shame_score: number;
+  sort_order: number;
+  is_featured: boolean;
+  evidence_photos: string | null;
+  created_at: string;
+  number: string | null;
+};
+
 export type Page = "home" | "packages" | "skins" | "consultation" | "admin";

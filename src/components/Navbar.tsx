@@ -11,6 +11,7 @@ const navLinks = [
   { to: '/bot-farms', label: 'Bot Farms' },
   { to: '/resources', label: 'Buy Resources' },
   { to: '/guides', label: 'Game Guides' },
+  { to: '/hall-of-losers', label: 'Hall of Losers' },
   { to: '/track', label: 'Track Order' },
 ];
 
