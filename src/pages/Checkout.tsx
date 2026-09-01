@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
-import { Loader, Check, ChevronDown, Upload, AlertCircle, FileText, Package, MapPin, ArrowUpRight } from 'lucide-react';
+import { Loader, Check, ChevronDown, Upload, AlertCircle, FileText, Package, MapPin, ArrowUpRight, Tag, X } from 'lucide-react';
 import PicturePlaceholder from '../components/PicturePlaceholder';
+import type { Coupon } from '../lib/types';
+import { validateCoupon, computeDiscount, couponCategoryLabel, isItemEligibleForCoupon } from '../lib/coupons';
 
 type PaymentMethod = {
   id: string;
@@ -85,7 +87,7 @@ type ExchangeRate = {
 };
 
 export default function Checkout() {
-  const { items, total, clearCart } = useCart();
+  const { items, clearCart } = useCart();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [selectedMethod, setSelectedMethod] = useState<string>('');
   const [paidConfirmed, setPaidConfirmed] = useState(false);
@@ -104,6 +106,12 @@ export default function Checkout() {
   });
   const [deliveryTouched, setDeliveryTouched] = useState(false);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
+
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponChecking, setCouponChecking] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponNotice, setCouponNotice] = useState<string | null>(null);
 
   const deliveryValid =
     delivery.customer_name.trim() &&
@@ -132,6 +140,69 @@ export default function Checkout() {
 
   const selectedPayment = paymentMethods.find(m => m.id === selectedMethod);
 
+  const { subtotal, discountAmount, finalTotal } = computeDiscount(appliedCoupon, items);
+
+  // If the cart changes after a coupon was applied (item removed/quantity zeroed
+  // out) and the coupon no longer has anything eligible to discount, drop it
+  // instead of silently keeping a coupon that now does nothing.
+  useEffect(() => {
+    if (!appliedCoupon) return;
+    const result = validateCoupon(appliedCoupon, items);
+    if (!result.ok) {
+      setAppliedCoupon(null);
+      setCouponNotice('Your coupon was removed: ' + result.reason.charAt(0).toLowerCase() + result.reason.slice(1));
+    }
+    // Only re-check when the cart contents change, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
+  const handleApplyCoupon = async () => {
+    const code = couponInput.trim().toUpperCase();
+    if (!code) {
+      setCouponError('Enter a coupon code.');
+      return;
+    }
+
+    setCouponChecking(true);
+    setCouponError(null);
+    setCouponNotice(null);
+
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', code)
+        .maybeSingle();
+
+      if (fetchError) throw new Error('Could not validate that coupon right now. Please try again.');
+      if (!data) {
+        setCouponError('Invalid coupon code.');
+        return;
+      }
+
+      const coupon = data as Coupon;
+      const result = validateCoupon(coupon, items);
+      if (!result.ok) {
+        setCouponError(result.reason);
+        return;
+      }
+
+      setAppliedCoupon(coupon);
+      setCouponInput('');
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : 'Something went wrong validating the coupon.');
+    } finally {
+      setCouponChecking(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError(null);
+    setCouponNotice(null);
+  };
+
   const canSubmit = !!selectedMethod && paidConfirmed && !!receiptFile && !!deliveryValid && !submitting;
 
   const handleCheckout = async (e: React.FormEvent) => {
@@ -141,6 +212,35 @@ export default function Checkout() {
     setSubmitting(true);
 
     try {
+      // Re-validate the applied coupon against a fresh DB row right before charging.
+      // Time may have passed since "Apply" was clicked (expiry could have hit,
+      // another customer could have exhausted a limited-use code) — the cart's
+      // total shown to the customer must match what actually gets recorded.
+      let couponToRecord: Coupon | null = null;
+      if (appliedCoupon) {
+        const { data: freshCoupon, error: couponFetchError } = await supabase
+          .from('coupons')
+          .select('*')
+          .eq('code', appliedCoupon.code)
+          .maybeSingle();
+
+        if (couponFetchError || !freshCoupon) {
+          setAppliedCoupon(null);
+          throw new Error('Your coupon is no longer available. Please review your total and try again.');
+        }
+
+        const revalidation = validateCoupon(freshCoupon as Coupon, items);
+        if (!revalidation.ok) {
+          setAppliedCoupon(null);
+          throw new Error(revalidation.reason + ' Please review your total and try again.');
+        }
+
+        couponToRecord = freshCoupon as Coupon;
+      }
+
+      const { discountAmount: finalDiscountAmount, finalTotal: amountDue, subtotal: preDiscountTotal } =
+        computeDiscount(couponToRecord, items);
+
       // Upload receipt to storage
       const fileExt = receiptFile!.name.split('.').pop();
       const fileName = `receipt-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
@@ -160,7 +260,10 @@ export default function Checkout() {
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          total,
+          total: amountDue,
+          subtotal: preDiscountTotal,
+          discount_amount: finalDiscountAmount,
+          coupon_code: couponToRecord?.code ?? null,
           status: 'pending',
           receipt_url: receiptUrl,
           payment_method: selectedPayment?.name ?? null,
@@ -177,21 +280,40 @@ export default function Checkout() {
       if (orderError || !order) throw new Error('Failed to create order.');
 
       // Create order items (triggers stock decrement)
-      const orderItems = items.map(i => ({
-        order_id: order.id,
-        item_type: i.item_type,
-        item_id: i.item_id,
-        name: i.name,
-        description: i.description,
-        price: Number(i.price),
-        quantity: i.quantity,
-        metadata: i.metadata,
-      }));
+      const orderItems = items.map(i => {
+        const discounted = !!couponToRecord && isItemEligibleForCoupon(couponToRecord, i.item_type);
+        return {
+          order_id: order.id,
+          item_type: i.item_type,
+          item_id: i.item_id,
+          name: i.name,
+          description: i.description,
+          price: Number(i.price),
+          quantity: i.quantity,
+          metadata: discounted
+            ? { ...i.metadata, coupon_code: couponToRecord!.code, coupon_discount_percent: Number(couponToRecord!.discount_percent) }
+            : i.metadata,
+        };
+      });
 
       const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
       if (itemsError) throw new Error('Failed to create order items.');
 
+      // Best-effort redemption counter. The order is already created and the
+      // customer has already paid the discounted amount by this point, so a
+      // failure here (e.g. a limited-use coupon got exhausted by someone else
+      // in the last few seconds) should not block their order from completing —
+      // it just means the usage count may under-count by one in a rare race.
+      if (couponToRecord) {
+        try {
+          await supabase.rpc('redeem_coupon', { coupon_code_input: couponToRecord.code });
+        } catch {
+          // Non-fatal — order stands regardless.
+        }
+      }
+
       await clearCart();
+      setAppliedCoupon(null);
       setOrderNumber(order.order_number);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
@@ -276,23 +398,100 @@ export default function Checkout() {
                 </div>
               </summary>
               <div className="mt-4 space-y-3">
-                {items.map(item => (
-                  <div key={item.id} className="flex justify-between text-sm border-b border-white/10 pb-3">
-                    <div className="min-w-0">
-                      <p className="text-white font-medium">{item.name}</p>
-                      <p className="text-gray-500 text-xs">Qty: {item.quantity} × ${Number(item.price).toFixed(2)}</p>
+                {items.map(item => {
+                  const eligible = !!appliedCoupon && isItemEligibleForCoupon(appliedCoupon, item.item_type);
+                  return (
+                    <div key={item.id} className="flex justify-between text-sm border-b border-white/10 pb-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="text-white font-medium">{item.name}</p>
+                          {eligible && (
+                            <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 border border-green-500/30 rounded-full px-1.5 py-0.5 flex-shrink-0">
+                              -{Number(appliedCoupon!.discount_percent)}%
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-gray-500 text-xs">Qty: {item.quantity} × ${Number(item.price).toFixed(2)}</p>
+                      </div>
+                      <span className="text-gray-300 flex-shrink-0">${(Number(item.price) * item.quantity).toFixed(2)}</span>
                     </div>
-                    <span className="text-gray-300 flex-shrink-0">${(Number(item.price) * item.quantity).toFixed(2)}</span>
+                  );
+                })}
+
+                {/* Coupon code */}
+                <div className="pt-1 pb-2">
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between gap-2 rounded-lg bg-green-500/10 border border-green-600/30 px-3 py-2.5">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-green-400 flex items-center gap-1.5">
+                          <Tag className="w-3.5 h-3.5 flex-shrink-0" /> {appliedCoupon.code} applied
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {Number(appliedCoupon.discount_percent)}% off {couponCategoryLabel(appliedCoupon)}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveCoupon}
+                        className="flex-shrink-0 w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:border-red-400/40 hover:bg-red-500/10 transition-colors"
+                        aria-label="Remove coupon"
+                      >
+                        <X className="w-3.5 h-3.5 text-gray-400" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex gap-2">
+                        <input
+                          value={couponInput}
+                          onChange={e => { setCouponInput(e.target.value); setCouponError(null); }}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleApplyCoupon(); } }}
+                          placeholder="Coupon code"
+                          className="flex-1 min-w-0 rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50 uppercase"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={couponChecking || !couponInput.trim()}
+                          className="flex-shrink-0 px-5 py-2.5 rounded-lg font-semibold text-sm bg-blue-400 hover:bg-blue-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 transition-colors"
+                        >
+                          {couponChecking ? <Loader className="w-4 h-4 animate-spin" /> : 'Apply'}
+                        </button>
+                      </div>
+                      {couponError && (
+                        <p className="text-xs text-red-400 mt-1.5 flex items-start gap-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" /> {couponError}
+                        </p>
+                      )}
+                      {couponNotice && !couponError && (
+                        <p className="text-xs text-yellow-400 mt-1.5 flex items-start gap-1">
+                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" /> {couponNotice}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {appliedCoupon && (
+                  <div className="flex justify-between text-sm text-gray-400 pt-1">
+                    <span>Subtotal</span>
+                    <span>${subtotal.toFixed(2)}</span>
                   </div>
-                ))}
+                )}
+                {appliedCoupon && discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-400 pt-1">
+                    <span>Discount</span>
+                    <span>-${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-white font-semibold text-base pt-2">
                   <span>Total Amount</span>
-                  <span className="heading-display text-blue-300 text-xl">${total.toFixed(2)}</span>
+                  <span className="heading-display text-blue-300 text-xl">${finalTotal.toFixed(2)}</span>
                 </div>
                 {exchangeRates.filter(r => r.currency_code !== 'USD').map(r => (
                   <div key={r.id} className="flex justify-between text-sm text-gray-400 pt-1">
                     <span>≈ {r.currency_code} (1 USD = {r.rate_per_usd} {r.currency_code})</span>
-                    <span className="font-medium">{r.symbol}{(total * Number(r.rate_per_usd)).toFixed(2)}</span>
+                    <span className="font-medium">{r.symbol}{(finalTotal * Number(r.rate_per_usd)).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -535,14 +734,28 @@ export default function Checkout() {
                 </div>
               ))}
             </div>
-            <div className="border-t border-white/10 pt-3 flex justify-between text-white font-semibold text-base">
-              <span>Total</span>
-              <span className="heading-display text-blue-300">${total.toFixed(2)}</span>
+            <div className="border-t border-white/10 pt-3 space-y-1">
+              {appliedCoupon && (
+                <>
+                  <div className="flex justify-between text-sm text-gray-400">
+                    <span>Subtotal</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-green-400">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>-${discountAmount.toFixed(2)}</span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between text-white font-semibold text-base pt-1">
+                <span>Total</span>
+                <span className="heading-display text-blue-300">${finalTotal.toFixed(2)}</span>
+              </div>
             </div>
             {exchangeRates.filter(r => r.currency_code !== 'USD').map(r => (
               <div key={r.id} className="flex justify-between text-sm text-gray-400 pt-1">
                 <span>≈ {r.currency_code} (1 USD = {r.rate_per_usd} {r.currency_code})</span>
-                <span className="font-medium">{r.symbol}{(total * Number(r.rate_per_usd)).toFixed(2)}</span>
+                <span className="font-medium">{r.symbol}{(finalTotal * Number(r.rate_per_usd)).toFixed(2)}</span>
               </div>
             ))}
           </div>

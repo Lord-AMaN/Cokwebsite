@@ -50,7 +50,24 @@ export type HallOfLoser = {
   is_featured: boolean;
   evidence_photos: string | null;
   created_at: string;
-  number: string | null;
+  number : number;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  discount_percent: number;
+  applies_to_all: boolean;
+  applies_to_resources: boolean;
+  applies_to_skins: boolean;
+  applies_to_castles: boolean;
+  applies_to_bot_farms: boolean;
+  is_active: boolean;
+  starts_at: string;
+  expires_at: string;
+  max_redemptions: number | null;
+  times_redeemed: number;
+  created_at: string;
 };
 
 export type Page = "home" | "packages" | "skins" | "consultation" | "admin";
