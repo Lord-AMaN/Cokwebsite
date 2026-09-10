@@ -23,6 +23,7 @@ export default {
       fontFamily: {
         sans: ['"Inter"', '"system-ui"', 'sans-serif'],
         display: ['"Cinzel"', 'Georgia', 'serif'],
+        game: ['"lord of rings"', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out forwards',

@@ -1,10 +1,18 @@
-import { Loader2 } from "lucide-react";
+import React from "react";
+import styles from "./Spinner.module.css";
 
-export default function LoadingSpinner({ label = "Loading..." }: { label?: string }) {
+export default function Spinner() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <Loader2 className="w-8 h-8 text-gold-400 animate-spin" />
-      <p className="text-sm text-gray-500 font-display tracking-wide">{label}</p>
+    <div className="flex items-center justify-center min-h-[300px]">
+      <div className={styles.pyramidLoader}>
+        <div className={styles.wrapper}>
+          <span className={`${styles.side} ${styles.side1}`} />
+          <span className={`${styles.side} ${styles.side2}`} />
+          <span className={`${styles.side} ${styles.side3}`} />
+          <span className={`${styles.side} ${styles.side4}`} />
+          <span className={styles.shadow} />
+        </div>
+      </div>
     </div>
   );
 }

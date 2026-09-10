@@ -1,6 +1,10 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import {
 
+  ArrowUpRight,
+  
+  
+} from "lucide-react";
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
@@ -33,8 +37,12 @@ export default function Hero() {
     <p className="text-lg md:text-xl text-gray-400 leading-relaxed text-left">
       Panda, Knight, Dragon, Easter, Ice Skins Available
     </p>
-    <Link to="/Skins" className="btn bg-yellow-500 hover:bg-yellow-600 text-black font-mono font-bold py-2 px-4 rounded-lg inline-flex items-center gap-2 transition-all flex-shrink-0">
-      Buy Skins <ArrowRight className="w-5 h-5" />
+    <Link to="/Skins" className="inline-flex items-center gap-5 pl-6 pr-2 py-2.5 rounded-full bg-yellow-400 hover:bg-yellow-300 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    Buy Skins    
+       <span className="w-8 h-8 rounded-full bg-yellow-700 flex items-center justify-center">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </span>
+      
     </Link>
   </div>
 </div>
@@ -55,8 +63,11 @@ export default function Hero() {
     </div>
     
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/packages" className="btn bg-blue-400 hover:bg-blue-700 text-black font-mono font-bold py-2 px-4 rounded-lg inline-flex items-center gap-2 transition-all flex-shrink-0">
-      Buy Packages <ArrowRight className="w-5 h-5" />
+    <Link to="/Packages" className="inline-flex items-center gap-5 pl-6 pr-2 py-2.5 rounded-full bg-blue-400 hover:bg-blue-500 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+      Buy Packages
+      <span className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </span>
     </Link>
   </div>
 </div>
@@ -73,8 +84,11 @@ export default function Hero() {
     </div>
     
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/Resources" className="btn bg-green-600 hover:bg-green-800 text-black font-mono font-bold py-2 px-4 rounded-lg inline-flex items-center gap-2 transition-all flex-shrink-0">
-      Get Resources <ArrowRight className="w-5 h-5" />
+    <Link to="/Resources" className="inline-flex items-center gap-4 pl-6 pr-2 py-2.5 rounded-full bg-green-400 hover:bg-green-500 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+      Get Resources
+      <span className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </span>
     </Link>
   </div>
 </div>
@@ -94,8 +108,11 @@ export default function Hero() {
       </p>
       </p>
     </div>
-    <Link to="/guides" className="btn bg-red-700 hover:bg-red-600 text-black font-mono font-bold py-2 px-4 rounded-lg inline-flex items-center gap-2 transition-all flex-shrink-0">
-      Check Game Guides <ArrowRight className="w-5 h-5" />
+    <Link to="/guides" className="inline-flex items-center gap-4 pl-4 pr-2 py-2.5 rounded-full bg-red-500 hover:bg-red-400 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+      Game Guides
+      <span className="w-8 h-8 rounded-full bg-red-900 flex items-center justify-center">
+        <ArrowUpRight className="w-4 h-4 text-white" />
+      </span>
     </Link>
   </div>
 </div>
@@ -111,8 +128,11 @@ export default function Hero() {
     </div>
     
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/Castles" className="btn bg-purple-600 hover:bg-purple-800 text-black font-mono font-bold py-2 px-4 rounded-lg inline-flex items-center gap-2 transition-all flex-shrink-0">
-      Buy/sell Castles <ArrowRight className="w-5 h-5" />
+    <Link to="/Castles" className="inline-flex items-center gap-4 pl-4 pr-2 py-2.5 rounded-full bg-purple-500 hover:bg-purple-400 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+      Buy/Sell Castles
+      <span className="w-8 h-8 rounded-full bg-purple-900 flex items-center justify-center">
+        <ArrowUpRight className="w-4 h-4 text-white" />
+      </span>
     </Link>
   </div>
 </div>
@@ -130,8 +150,11 @@ export default function Hero() {
     </div>
     
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/bot-farms" className="btn bg-orange-600 hover:bg-orange-800 text-black font-mono font-bold py-2 px-4 rounded-lg inline-flex items-center gap-2 transition-all flex-shrink-0">
-      Bot farms <ArrowRight className="w-5 h-5" />
+    <Link to="/Castles" className="inline-flex items-center gap-4 pl-4 pr-2 py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+      Bot Farms
+      <span className="w-8 h-8 rounded-full bg-orange-900 flex items-center justify-center">
+        <ArrowUpRight className="w-4 h-4 text-white" />
+      </span>
     </Link>
   </div>
 </div>
