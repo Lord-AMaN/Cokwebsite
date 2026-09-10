@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Brain, Clock, X, Check, Loader } from 'lucide-react';
-
+import { Brain, Clock, X, Check } from 'lucide-react';
+import { Loader } from '../components/LoadingSpinner';
 type Consultation = {
   id: string; service_name: string; description: string;
   price: number; duration_minutes: number; category: string; is_featured: boolean;

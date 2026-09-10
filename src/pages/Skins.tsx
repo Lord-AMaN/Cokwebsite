@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useCart } from "../context/CartContext";
-import { Loader, ShoppingCart, Package, Check } from "lucide-react";
-
+import {  ShoppingCart, Package, Check } from "lucide-react";
+import { Loader } from '../components/LoadingSpinner';
 type Skin = {
   id: string;
   name: string;

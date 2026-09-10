@@ -1,4 +1,5 @@
 
+
 export default function GameGuides() {
   return (
     <div className="pt-20 pb-24 min-h-screen">

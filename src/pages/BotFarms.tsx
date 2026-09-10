@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
-import { Loader, PlayCircle, ShoppingCart, Check, Minus, Plus, Bot, Infinity as InfinityIcon } from 'lucide-react';
+import { PlayCircle, ShoppingCart, Check, Minus, Plus, Bot, Infinity as InfinityIcon } from 'lucide-react';
 import VideoModal from '../components/VideoModal';
 import { getYouTubeId } from '../lib/youtube';
-
+import { Loader } from '../components/LoadingSpinner';
 type BotFarmSettings = {
   id: string;
   price: number;

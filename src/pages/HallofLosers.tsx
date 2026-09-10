@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader, Skull, Frown, Siren, Quote, Flag, Phone , Crown, Trash2, ChevronDown } from 'lucide-react';
+import {  Skull, Frown, Siren, Quote, Flag, Phone , Crown, Trash2, ChevronDown } from 'lucide-react';
 import type { HallOfLoser } from '../lib/types';
-
+import { Loader } from '../components/LoadingSpinner';
 const shameLabel = (score: number) => {
   if (score >= 90) return 'Legendary Disaster';
   if (score >= 70) return 'Certified Menace';

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Search, Loader, Package, CheckCircle, Clock, XCircle, AlertCircle, Receipt } from 'lucide-react';
+import { Search, Package, CheckCircle, Clock, XCircle, AlertCircle, Receipt, Loader2 } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 type OrderItem = {
   name: string;
@@ -99,13 +100,22 @@ export default function TrackOrder() {
                 className="input-game pl-10 uppercase"
               />
             </div>
-            <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50">
-              {loading ? <Loader className="w-4 h-4 animate-spin" /> : 'Track'}
+            {/* Kept minimal inside the button so the button maintains standard dimensions */}
+            <button type="submit" disabled={loading} className="btn-primary disabled:opacity-50 min-w-[5rem] flex items-center justify-center">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : 'Track'}
             </button>
           </form>
         </div>
 
-        {error && (
+        {/* 3D Pyramid loader rendered in the main area while fetching */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-16">
+            <LoadingSpinner scale={0.7} />
+            <p className="text-sm text-gray-400 mt-4 tracking-wider">Locating order details...</p>
+          </div>
+        )}
+
+        {error && !loading && (
           <div className="max-w-xl mx-auto">
             <div className="card-game p-8 text-center">
               <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
@@ -123,7 +133,7 @@ export default function TrackOrder() {
           </div>
         )}
 
-        {order && (
+        {order && !loading && (
           <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
             {/* Order status tracker */}
             <div className="card-game p-8">
@@ -219,7 +229,7 @@ export default function TrackOrder() {
           </div>
         )}
 
-        {!searched && (
+        {!searched && !loading && (
           <div className="max-w-xl mx-auto">
             <div className="card-game p-8 text-center">
               <Package className="w-12 h-12 text-gray-600 mx-auto mb-4" />

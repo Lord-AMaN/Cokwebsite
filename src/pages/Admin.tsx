@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Trash2, Star, Loader, X, Edit2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Plus, Trash2, Star, X, Edit2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Loader } from '../components/LoadingSpinner';
 
 type Package = { id?: string; name: string; description: string; price: number; original_price: number | null; contents: string[]; badge: string | null; is_featured: boolean; sort_order: number };
 type Skin = { id?: string; name: string; hero_name: string; description: string; price: number; rarity: string; image_url: string | null; is_featured: boolean; sort_order: number };

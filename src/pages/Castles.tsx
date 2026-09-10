@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
-import { Loader, ImageOff, ArrowUpRight, Ticket, Zap, Flag, LayoutGrid, PlayCircle, ShoppingCart, Check } from 'lucide-react';
+import { ImageOff, ArrowUpRight, Ticket, Zap, Flag, LayoutGrid, PlayCircle, ShoppingCart, Check } from 'lucide-react';
 import VideoModal from '../components/VideoModal';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { getYouTubeId } from '../lib/youtube';
 
 type CastleListing = {
@@ -60,7 +61,7 @@ export default function Castles() {
   if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center pt-16">
-        <Loader className="w-8 h-8 text-green-400 animate-spin" />
+        <LoadingSpinner scale={0.7} />
       </div>
     );
 

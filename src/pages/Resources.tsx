@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Calculator, RotateCcw, ShoppingCart, Loader, Package } from 'lucide-react';
+import { Calculator, RotateCcw, ShoppingCart,  Package } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
-
+import { Loader } from '../components/LoadingSpinner';
 type Resource = {
   id: string;
   name: string;

@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { supabase } from '../lib/supabase';
-import { Loader, Check, ChevronDown, Upload, AlertCircle, FileText, Package, MapPin, ArrowUpRight, Tag, X } from 'lucide-react';
+import {  Check, ChevronDown, Upload, AlertCircle, FileText, Package, MapPin, ArrowUpRight, Tag, X } from 'lucide-react';
 import PicturePlaceholder from '../components/PicturePlaceholder';
 import type { Coupon } from '../lib/types';
 import { validateCoupon, computeDiscount, couponCategoryLabel, isItemEligibleForCoupon } from '../lib/coupons';
-
+import { Loader } from '../components/LoadingSpinner';
 type PaymentMethod = {
   id: string;
   name: string;

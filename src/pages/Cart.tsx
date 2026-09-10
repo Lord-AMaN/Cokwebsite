@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { Trash2, ShoppingCart, ArrowRight, Loader } from 'lucide-react';
-
+import { Trash2, ShoppingCart, ArrowRight } from 'lucide-react';
+import { Loader } from '../components/LoadingSpinner';
 export default function Cart() {
   const { items, loading, removeItem, updateQuantity, total, count } = useCart();
 
