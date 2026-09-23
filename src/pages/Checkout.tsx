@@ -1,12 +1,34 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
-import { supabase } from '../lib/supabase';
-import {  Check, ChevronDown, Upload, AlertCircle, FileText, Package, MapPin, ArrowUpRight, Tag, X } from 'lucide-react';
-import PicturePlaceholder from '../components/PicturePlaceholder';
-import type { Coupon } from '../lib/types';
-import { validateCoupon, computeDiscount, couponCategoryLabel, isItemEligibleForCoupon } from '../lib/coupons';
-import { Loader } from '../components/LoadingSpinner';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { supabase } from "../lib/supabase";
+import BeamBorder from "@/components/ui/borderbeamcard";
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Upload,
+  AlertCircle,
+  ArrowUpRight,
+  Tag,
+  X,
+  CreditCard,
+  Landmark,
+  Smartphone,
+  DollarSign,
+  Coins,
+  AlertTriangle,
+} from "lucide-react";
+import PicturePlaceholder from "../components/PicturePlaceholder";
+import type { Coupon } from "../lib/types";
+import {
+  validateCoupon,
+  computeDiscount,
+  isItemEligibleForCoupon,
+} from "../lib/coupons";
+import { Loader } from "../components/LoadingSpinner";
+import InputField from "../components/ui/input field"; // <-- Imported custom input
+
 type PaymentMethod = {
   id: string;
   name: string;
@@ -14,10 +36,6 @@ type PaymentMethod = {
   sort_order: number;
 };
 
-// Instructions are now coded here instead of pulled from the database.
-// Key must match the payment method's `name` column in Supabase exactly.
-// `image` is optional — point it at a file in /public (e.g. '/upi-qr.png').
-// Leave it out and a placeholder box will show instead, telling you what to add.
 type PaymentInstruction = {
   text: string;
   image?: string;
@@ -27,7 +45,7 @@ type PaymentInstruction = {
 };
 
 const PAYMENT_INSTRUCTIONS: Record<string, PaymentInstruction> = {
-  'Bank Transfer [Wise](Recommended)': {
+  "Bank Transfer [Wise](Recommended)": {
     text: `Send to Country: India
     Account Holder Name: Aman Maan 
     Account Number: 41331050755
@@ -38,11 +56,10 @@ IFSC Code : SBIN0010314
     Postcode : 440023
      
 Send the exact total shown above and upload the receipt below.`,
-guideUrl: '/wise.pdf',
- image: '/re.png',
+    guideUrl: "/wise.pdf",
+    image: "/re.png",
   },
-
-  'Bank Transfer [Revolut](Recommended)': {
+  "Bank Transfer [Revolut](Recommended)": {
     text: `Send to Country: India
     Account Holder Name: Aman Maan 
     Account Number: 41331050755
@@ -53,30 +70,34 @@ IFSC Code : SBIN0010314
     Postcode : 440023
      
 Send the exact total shown above and upload the receipt below.`,
-guideUrl: '/r1.pdf',
-image: '/re1.png',
-
+    guideUrl: "/r1.pdf",
+    image: "/re1.png",
   },
-  
-  'UPI (only for indian users)': {
+  "UPI (only for indian users)": {
     text: `UPI ID: castlep5kannon@oksbi 
    
 
 Scan the QR code or send to the UPI ID above, then upload a screenshot of the successful payment.`,
-    image: '/qr.jpeg',
+    image: "/qr.jpeg",
   },
-  'PayPal': {
+  PayPal: {
     text: `PayPal link : https://www.paypal.me/RHaeflinger
 
 Send the exact total shown above as Friends & Family, then upload the payment screenshot.`,
-    image: '/paypal.png',
-    payButtonUrl: 'https://www.paypal.me/RHaeflinger',
-    payButtonIcon: '/paypal2.png',
+    image: "/paypal.png",
+    payButtonUrl: "https://www.paypal.me/RHaeflinger",
+    payButtonIcon: "/paypal2.png",
+  },
+  Crypto: {
+    text: "Only USDT is accepted. Please select your network/chain below and send only USDT to the corresponding address.",
+  },
+  "Crypto (USDT)": {
+    text: "Only USDT is accepted. Please select your network/chain below and send only USDT to the corresponding address.",
   },
 };
 
 const DEFAULT_PAYMENT_INSTRUCTIONS: PaymentInstruction = {
-  text: 'Instructions for this payment method are coming soon. Please open a Discord ticket if you need help completing this payment.',
+  text: "Instructions for this payment method are coming soon. Please open a Discord ticket if you need help completing this payment.",
 };
 
 type ExchangeRate = {
@@ -86,10 +107,74 @@ type ExchangeRate = {
   symbol: string;
 };
 
+type CryptoNetwork = {
+  id: string;
+  name: string;
+  badge: string;
+  image: string;
+  description: string;
+};
+
+const CRYPTO_NETWORKS: CryptoNetwork[] = [
+  {
+    id: "plasma",
+    name: "Plasma",
+    badge: "Plasma",
+    image: "/plasma.jpeg",
+    description: "Send USDT on the Plasma network to the address or QR code below:",
+  },
+  {
+    id: "ton",
+    name: "TON (TheOpenNetwork)",
+    badge: "TON",
+    image: "/TON.jpeg",
+    description: "Send USDT on TON (TheOpenNetwork) to the address or QR code below:",
+  },
+  {
+    id: "bep20",
+    name: "Binance Smart Chain (BEP20)",
+    badge: "BEP20",
+    image: "/bep20.jpeg",
+    description: "Send USDT on Binance Smart Chain (BEP20) to the address or QR code below:",
+  },
+];
+
+const isCryptoPayment = (name: string) => {
+  const lower = name.toLowerCase();
+  return (
+    lower.includes("crypto") ||
+    lower.includes("usdt") ||
+    lower.includes("bitcoin") ||
+    lower.includes("ton") ||
+    lower.includes("binance") ||
+    lower.includes("plasma") ||
+    lower.includes("bep20")
+  );
+};
+
+const getPaymentIcon = (name: string) => {
+  const lower = name.toLowerCase();
+  if (
+    lower.includes("bank") ||
+    lower.includes("wise") ||
+    lower.includes("revolut")
+  )
+    return <Landmark className="w-5 h-5 text-gray-800" />;
+  if (lower.includes("paypal"))
+    return <DollarSign className="w-5 h-5 text-blue-800" />;
+  if (lower.includes("upi"))
+    return <Smartphone className="w-5 h-5 text-gray-800" />;
+  if (isCryptoPayment(name))
+    return <Coins className="w-5 h-5 text-amber-500" />;
+  return <CreditCard className="w-5 h-5 text-gray-800" />;
+};
+
 export default function Checkout() {
   const { items, clearCart } = useCart();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [selectedMethod, setSelectedMethod] = useState<string>('');
+  const [selectedMethod, setSelectedMethod] = useState<string>("");
+  const [selectedCryptoNetwork, setSelectedCryptoNetwork] =
+    useState<string>("plasma");
   const [paidConfirmed, setPaidConfirmed] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -97,17 +182,17 @@ export default function Checkout() {
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
   const [delivery, setDelivery] = useState({
-    customer_name: '',
-    castle_name: '',
-    castle_level: '',
-    kingdom: '',
-    coordinates: '',
-    whatsapp_number: '',
+    customer_name: "",
+    castle_name: "",
+    castle_level: "",
+    kingdom: "",
+    coordinates: "",
+    whatsapp_number: "",
   });
   const [deliveryTouched, setDeliveryTouched] = useState(false);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>([]);
 
-  const [couponInput, setCouponInput] = useState('');
+  const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponChecking, setCouponChecking] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
@@ -124,42 +209,43 @@ export default function Checkout() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase
-        .from('payment_methods')
-        .select('*')
-        .eq('is_active', true)
-        .order('sort_order');
+        .from("payment_methods")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order");
       if (data) setPaymentMethods(data as PaymentMethod[]);
 
       const { data: rates } = await supabase
-        .from('exchange_rates')
-        .select('*')
-        .order('id');
+        .from("exchange_rates")
+        .select("*")
+        .order("id");
       if (rates) setExchangeRates(rates as ExchangeRate[]);
     })();
   }, []);
 
-  const selectedPayment = paymentMethods.find(m => m.id === selectedMethod);
+  const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
+  const { subtotal, discountAmount, finalTotal } = computeDiscount(
+    appliedCoupon,
+    items,
+  );
 
-  const { subtotal, discountAmount, finalTotal } = computeDiscount(appliedCoupon, items);
-
-  // If the cart changes after a coupon was applied (item removed/quantity zeroed
-  // out) and the coupon no longer has anything eligible to discount, drop it
-  // instead of silently keeping a coupon that now does nothing.
   useEffect(() => {
     if (!appliedCoupon) return;
     const result = validateCoupon(appliedCoupon, items);
     if (!result.ok) {
       setAppliedCoupon(null);
-      setCouponNotice('Your coupon was removed: ' + result.reason.charAt(0).toLowerCase() + result.reason.slice(1));
+      setCouponNotice(
+        "Your coupon was removed: " +
+          result.reason.charAt(0).toLowerCase() +
+          result.reason.slice(1),
+      );
     }
-    // Only re-check when the cart contents change, not on every render.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
   const handleApplyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
     if (!code) {
-      setCouponError('Enter a coupon code.');
+      setCouponError("Enter a coupon code.");
       return;
     }
 
@@ -169,14 +255,17 @@ export default function Checkout() {
 
     try {
       const { data, error: fetchError } = await supabase
-        .from('coupons')
-        .select('*')
-        .eq('code', code)
+        .from("coupons")
+        .select("*")
+        .eq("code", code)
         .maybeSingle();
 
-      if (fetchError) throw new Error('Could not validate that coupon right now. Please try again.');
+      if (fetchError)
+        throw new Error(
+          "Could not validate that coupon right now. Please try again.",
+        );
       if (!data) {
-        setCouponError('Invalid coupon code.');
+        setCouponError("Invalid coupon code.");
         return;
       }
 
@@ -188,9 +277,13 @@ export default function Checkout() {
       }
 
       setAppliedCoupon(coupon);
-      setCouponInput('');
+      setCouponInput("");
     } catch (err) {
-      setCouponError(err instanceof Error ? err.message : 'Something went wrong validating the coupon.');
+      setCouponError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong validating the coupon.",
+      );
     } finally {
       setCouponChecking(false);
     }
@@ -198,12 +291,17 @@ export default function Checkout() {
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
-    setCouponInput('');
+    setCouponInput("");
     setCouponError(null);
     setCouponNotice(null);
   };
 
-  const canSubmit = !!selectedMethod && paidConfirmed && !!receiptFile && !!deliveryValid && !submitting;
+  const canSubmit =
+    !!selectedMethod &&
+    paidConfirmed &&
+    !!receiptFile &&
+    !!deliveryValid &&
+    !submitting;
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -212,61 +310,72 @@ export default function Checkout() {
     setSubmitting(true);
 
     try {
-      // Re-validate the applied coupon against a fresh DB row right before charging.
-      // Time may have passed since "Apply" was clicked (expiry could have hit,
-      // another customer could have exhausted a limited-use code) — the cart's
-      // total shown to the customer must match what actually gets recorded.
       let couponToRecord: Coupon | null = null;
       if (appliedCoupon) {
         const { data: freshCoupon, error: couponFetchError } = await supabase
-          .from('coupons')
-          .select('*')
-          .eq('code', appliedCoupon.code)
+          .from("coupons")
+          .select("*")
+          .eq("code", appliedCoupon.code)
           .maybeSingle();
 
         if (couponFetchError || !freshCoupon) {
           setAppliedCoupon(null);
-          throw new Error('Your coupon is no longer available. Please review your total and try again.');
+          throw new Error(
+            "Your coupon is no longer available. Please review your total and try again.",
+          );
         }
 
         const revalidation = validateCoupon(freshCoupon as Coupon, items);
         if (!revalidation.ok) {
           setAppliedCoupon(null);
-          throw new Error(revalidation.reason + ' Please review your total and try again.');
+          throw new Error(
+            revalidation.reason + " Please review your total and try again.",
+          );
         }
 
         couponToRecord = freshCoupon as Coupon;
       }
 
-      const { discountAmount: finalDiscountAmount, finalTotal: amountDue, subtotal: preDiscountTotal } =
-        computeDiscount(couponToRecord, items);
+      const {
+        discountAmount: finalDiscountAmount,
+        finalTotal: amountDue,
+        subtotal: preDiscountTotal,
+      } = computeDiscount(couponToRecord, items);
 
-      // Upload receipt to storage
-      const fileExt = receiptFile!.name.split('.').pop();
+      const fileExt = receiptFile!.name.split(".").pop();
       const fileName = `receipt-${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
       const { error: uploadError } = await supabase.storage
-        .from('receipts')
+        .from("receipts")
         .upload(fileName, receiptFile!);
 
-      if (uploadError) throw new Error('Failed to upload receipt. Please try again.');
+      if (uploadError)
+        throw new Error("Failed to upload receipt. Please try again.");
 
       const { data: publicUrlData } = supabase.storage
-        .from('receipts')
+        .from("receipts")
         .getPublicUrl(fileName);
 
       const receiptUrl = publicUrlData.publicUrl;
 
-      // Create order
+      const activeCryptoNet = CRYPTO_NETWORKS.find(
+        (n) => n.id === selectedCryptoNetwork,
+      );
+      const recordedPaymentMethod = selectedPayment
+        ? isCryptoPayment(selectedPayment.name) && activeCryptoNet
+          ? `${selectedPayment.name} (${activeCryptoNet.name})`
+          : selectedPayment.name
+        : null;
+
       const { data: order, error: orderError } = await supabase
-        .from('orders')
+        .from("orders")
         .insert({
           total: amountDue,
           subtotal: preDiscountTotal,
           discount_amount: finalDiscountAmount,
           coupon_code: couponToRecord?.code ?? null,
-          status: 'pending',
+          status: "pending",
           receipt_url: receiptUrl,
-          payment_method: selectedPayment?.name ?? null,
+          payment_method: recordedPaymentMethod,
           customer_name: delivery.customer_name.trim(),
           castle_name: delivery.castle_name.trim(),
           castle_level: delivery.castle_level.trim(),
@@ -274,14 +383,15 @@ export default function Checkout() {
           coordinates: delivery.coordinates.trim(),
           whatsapp_number: delivery.whatsapp_number.trim(),
         })
-        .select('*')
+        .select("*")
         .single();
 
-      if (orderError || !order) throw new Error('Failed to create order.');
+      if (orderError || !order) throw new Error("Failed to create order.");
 
-      // Create order items (triggers stock decrement)
-      const orderItems = items.map(i => {
-        const discounted = !!couponToRecord && isItemEligibleForCoupon(couponToRecord, i.item_type);
+      const orderItems = items.map((i) => {
+        const discounted =
+          !!couponToRecord &&
+          isItemEligibleForCoupon(couponToRecord, i.item_type);
         return {
           order_id: order.id,
           item_type: i.item_type,
@@ -291,24 +401,29 @@ export default function Checkout() {
           price: Number(i.price),
           quantity: i.quantity,
           metadata: discounted
-            ? { ...i.metadata, coupon_code: couponToRecord!.code, coupon_discount_percent: Number(couponToRecord!.discount_percent) }
+            ? {
+                ...i.metadata,
+                coupon_code: couponToRecord!.code,
+                coupon_discount_percent: Number(
+                  couponToRecord!.discount_percent,
+                ),
+              }
             : i.metadata,
         };
       });
 
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw new Error('Failed to create order items.');
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+      if (itemsError) throw new Error("Failed to create order items.");
 
-      // Best-effort redemption counter. The order is already created and the
-      // customer has already paid the discounted amount by this point, so a
-      // failure here (e.g. a limited-use coupon got exhausted by someone else
-      // in the last few seconds) should not block their order from completing —
-      // it just means the usage count may under-count by one in a rare race.
       if (couponToRecord) {
         try {
-          await supabase.rpc('redeem_coupon', { coupon_code_input: couponToRecord.code });
+          await supabase.rpc("redeem_coupon", {
+            coupon_code_input: couponToRecord.code,
+          });
         } catch {
-          // Non-fatal — order stands regardless.
+          // Silently fail best-effort redemption
         }
       }
 
@@ -316,59 +431,63 @@ export default function Checkout() {
       setAppliedCoupon(null);
       setOrderNumber(order.order_number);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong.');
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Success screen
   if (orderNumber) {
     return (
-      <div className="pt-20 pb-24 min-h-screen flex items-center justify-center">
-        <div className="container-game max-w-lg">
-          <div className="rounded-2xl p-10 text-center backdrop-blur-xl bg-gradient-to-br from-black/70 via-slate-900/60 to-blue-950/50 border border-white/10 shadow-lg">
-            <div className="w-16 h-16 rounded-full bg-green-600/20 border border-green-600/40 flex items-center justify-center mx-auto mb-6">
-              <Check className="w-8 h-8 text-green-400" />
-            </div>
-            <h1 className="heading-display text-2xl font-bold text-white mb-2">Order Created!</h1>
-            <p className="text-gray-400 mb-6">Your order has been submitted. We'll verify your payment and update the status shortly.</p>
-            <div className="bg-black/30 border border-white/10 rounded-lg p-4 mb-6">
-              <p className="text-sm text-gray-500 mb-1">Your Order Number</p>
-              <p className="heading-display text-2xl font-bold text-blue-300">{orderNumber}</p>
-            </div>
-            <div className="flex gap-3 justify-center">
-              <Link
-                to={`/track?order=${orderNumber}`}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-200 active:scale-95 bg-blue-400 hover:bg-blue-300 text-slate-950"
-                style={{ fontFamily: '"Cinzel", Georgia, serif' }}
-              >
-                Track Order
-              </Link>
-              <Link
-                to="/"
-                className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-200 active:scale-95 bg-white/5 border border-white/10 text-gray-200 hover:border-blue-400/40 hover:bg-blue-500/10"
-                style={{ fontFamily: '"Cinzel", Georgia, serif' }}
-              >
-                Home
-              </Link>
-            </div>
+      <div className="pt-24 pb-24 min-h-screen bg-black text-white flex items-center justify-center font-sans">
+        <div className="w-full max-w-lg mx-auto p-8 rounded-xl bg-[#161616] text-center shadow-2xl border border-white/5">
+          <div className="w-16 h-16 rounded-full bg-[#1e2e1e] flex items-center justify-center mx-auto mb-6">
+            <Check className="w-8 h-8 text-[#4ade80]" />
+          </div>
+          <h1 className="text-2xl font-bold mb-3 tracking-tight">
+            Order Created
+          </h1>
+          <p className="text-[#a3a3a3] mb-8">
+            Your order has been submitted. We'll verify your payment and update
+            the status shortly.
+          </p>
+
+          <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-lg p-5 mb-8">
+            <p className="text-sm text-[#a3a3a3] mb-1 font-medium">
+              Order Number
+            </p>
+            <p className="text-2xl font-bold text-white tracking-widest">
+              {orderNumber}
+            </p>
+          </div>
+
+          <div className="flex gap-4 justify-center">
+            <Link
+              to={`/track?order=${orderNumber}`}
+              className="flex-1 py-3.5 rounded font-bold transition-all bg-white hover:bg-gray-200 text-black text-center"
+            >
+              Track Order
+            </Link>
+            <Link
+              to="/"
+              className="flex-1 py-3.5 rounded font-bold transition-all bg-[#2a2a2a] hover:bg-[#333] text-white text-center"
+            >
+              Home
+            </Link>
           </div>
         </div>
       </div>
     );
   }
 
-  // Empty cart
   if (items.length === 0) {
     return (
-      <div className="pt-20 pb-24 min-h-screen flex items-center justify-center">
-        <div className="container-game max-w-md text-center">
-          <p className="text-gray-400 mb-6">Your cart is empty.</p>
+      <div className="pt-24 pb-24 min-h-screen bg-black text-white flex items-center justify-center font-sans">
+        <div className="text-center">
+          <p className="text-[#a3a3a3] mb-6 text-lg">Your cart is empty.</p>
           <Link
             to="/packages"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-200 active:scale-95 bg-blue-400 hover:bg-blue-300 text-slate-950"
-            style={{ fontFamily: '"Cinzel", Georgia, serif' }}
+            className="inline-flex items-center justify-center px-8 py-3.5 rounded font-bold transition-all bg-white hover:bg-gray-200 text-black"
           >
             Browse Store
           </Link>
@@ -378,387 +497,604 @@ export default function Checkout() {
   }
 
   return (
-    <div className="pt-20 pb-24 min-h-screen">
-      <div className="container-game">
-        <h1 className="heading-display text-3xl font-bold text-white mt-4 mb-8">Checkout & Payment</h1>
+    <div className="pt-28 pb-32 min-h-screen bg-black font-sans text-white">
+      <div className="w-full max-w-[640px] mx-auto px-4 md:px-0">
+        <div className="text-center mb-12">
+          <h1 className="text-[32px] font-bold text-white mb-2 tracking-tight">
+            Choose How to Pay
+          </h1>
+          <p className="text-[#a3a3a3] text-sm font-medium">
+            Review your order and select a payment method.
+          </p>
+        </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Dropdown 1: Order Summary */}
-            <details className="rounded-2xl p-6 group backdrop-blur-xl bg-gradient-to-br from-black/70 via-slate-900/60 to-blue-950/50 border border-white/10 shadow-lg" open>
-              <summary className="flex items-center justify-between cursor-pointer list-none">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 backdrop-blur flex items-center justify-center">
-                    <Package className="w-5 h-5 text-blue-300" />
-                  </div>
-                  <h3 className="heading-display text-lg font-bold text-white">Order Summary</h3>
-                </div>
-                <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-open:bg-blue-500/10 group-open:border-blue-400/30 transition-colors">
-                  <ChevronDown className="w-4 h-4 text-gray-400 group-open:text-blue-300 group-open:rotate-180 transition-transform" />
-                </div>
-              </summary>
-              <div className="mt-4 space-y-3">
-                {items.map(item => {
-                  const eligible = !!appliedCoupon && isItemEligibleForCoupon(appliedCoupon, item.item_type);
+        <h2 className="text-base font-bold text-white mb-3 text-center tracking-wide">
+          Cart Summary
+        </h2>
+
+        <BeamBorder
+          size="pulse-outside"
+          colorVariant="mono"
+          theme="dark"
+          active={true}
+          strength={1}
+          duration={1.1}
+          beamWidth={2}
+          className="w-full max-w-3xl mb-9"
+        >
+          <div
+            className="relative flex flex-col gap-4 rounded-2xl p-8 text-white"
+            style={{ backgroundColor: "transparent" }}
+          >
+            {/* Inner box 1: cart items */}
+            <div
+              className="relative flex flex-col gap-4 rounded-2xl p-8 text-white"
+              style={{ backgroundColor: "transparent" }}
+            >
+              <div className="space-y-5">
+                {items.map((item, idx) => {
+                  const eligible =
+                    !!appliedCoupon &&
+                    isItemEligibleForCoupon(appliedCoupon, item.item_type);
                   return (
-                    <div key={item.id} className="flex justify-between text-sm border-b border-white/10 pb-3">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-white font-medium">{item.name}</p>
+                    <div key={item.id}>
+                      {idx > 0 && (
+                        <div className="border-t border-white/10 mb-5" />
+                      )}
+                      <div className="flex items-center gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white font-bold text-[15px] truncate">
+                            {item.name}
+                          </p>
+                          {item.color_label && (
+                            <p className="text-[#a3a3a3] text-sm mt-0.5 flex items-center gap-1.5">
+                              Color:
+                              {item.color_swatch && (
+                                <span
+                                  className="w-2 h-2 rounded-full inline-block"
+                                  style={{ backgroundColor: item.color_swatch }}
+                                />
+                              )}
+                              {item.color_label}
+                            </p>
+                          )}
                           {eligible && (
-                            <span className="text-[10px] font-semibold text-green-400 bg-green-500/10 border border-green-500/30 rounded-full px-1.5 py-0.5 flex-shrink-0">
-                              -{Number(appliedCoupon!.discount_percent)}%
-                            </span>
+                            <div className="inline-flex mt-1.5 px-2 py-0.5 bg-[#c3e0ff] rounded text-[#003c80] text-xs font-bold tracking-tight">
+                              Save {Number(appliedCoupon!.discount_percent)}%
+                            </div>
                           )}
                         </div>
-                        <p className="text-gray-500 text-xs">Qty: {item.quantity} × ${Number(item.price).toFixed(2)}</p>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-[#a3a3a3] text-sm">
+                            {item.quantity}x
+                          </p>
+                          <p className="text-white font-bold">
+                            ${(Number(item.price) * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                      <span className="text-gray-300 flex-shrink-0">${(Number(item.price) * item.quantity).toFixed(2)}</span>
                     </div>
                   );
                 })}
+              </div>
+            </div>
 
-                {/* Coupon code */}
-                <div className="pt-1 pb-2">
+            {/* Inner box 2: shopping cart summary + coupon */}
+            <div className="rounded-2xl bg-gradient-to-b from-[#111111]/80 to-[#1c1c1c]/80 p-5">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-[13px] font-bold text-[#a3a3a3] uppercase tracking-wider"></span>
+                <Link
+                  to="/skins"
+                  className="text-[#3e95ff] text-sm font-bold hover:underline tracking-wide"
+                >
+                  Add More Items
+                </Link>
+              </div>
+
+              <div className="space-y-2 mb-3">
+                {appliedCoupon && (
+                  <div className="flex justify-between text-sm text-[#4ade80] font-medium">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span>-${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="border-t border-white/10 pt-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-white font-bold text-lg">Total</span>
+                  <span className="text-white font-bold text-xl">
+                    ${finalTotal.toFixed(2)}
+                  </span>
+                </div>
+                {exchangeRates
+                  .filter((r) => r.currency_code !== "USD")
+                  .map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex justify-end text-xs text-[#a3a3a3] mt-1 font-medium"
+                    >
+                      <span>
+                        ≈ {r.symbol}
+                        {(finalTotal * Number(r.rate_per_usd)).toFixed(2)}{" "}
+                        {r.currency_code}
+                      </span>
+                    </div>
+                  ))}
+                {/* Coupon Code Inline Input — logic untouched */}
+                <div className="mt-5 pt-5 border-t border-white/10">
                   {appliedCoupon ? (
-                    <div className="flex items-center justify-between gap-2 rounded-lg bg-green-500/10 border border-green-600/30 px-3 py-2.5">
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-green-400 flex items-center gap-1.5">
-                          <Tag className="w-3.5 h-3.5 flex-shrink-0" /> {appliedCoupon.code} applied
-                        </p>
-                        <p className="text-xs text-gray-400 mt-0.5">
-                          {Number(appliedCoupon.discount_percent)}% off {couponCategoryLabel(appliedCoupon)}
-                        </p>
+                    <div className="flex items-center justify-between bg-[#1f1f1f] rounded-lg p-3 border border-[#333]">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-[#4ade80]" />
+                        <span className="text-sm font-bold text-white">
+                          {appliedCoupon.code} Applied
+                        </span>
                       </div>
                       <button
-                        type="button"
                         onClick={handleRemoveCoupon}
-                        className="flex-shrink-0 w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:border-red-400/40 hover:bg-red-500/10 transition-colors"
-                        aria-label="Remove coupon"
+                        className="text-[#a3a3a3] hover:text-white"
                       >
-                        <X className="w-3.5 h-3.5 text-gray-400" />
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
                     <div>
-                      <div className="flex gap-2">
-                        <input
-                          value={couponInput}
-                          onChange={e => { setCouponInput(e.target.value); setCouponError(null); }}
-                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleApplyCoupon(); } }}
-                          placeholder="Coupon code"
-                          className="flex-1 min-w-0 rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50 uppercase"
-                        />
+                      <div className="flex gap-5">
+                        <div className="flex-1">
+                          <InputField
+                            label="Have a promo code?"
+                            value={couponInput}
+                            onChange={(e) => {
+                              setCouponInput(e.target.value);
+                              setCouponError(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleApplyCoupon();
+                              }
+                            }}
+                            style={{ textTransform: "uppercase" }}
+                          />
+                        </div>
                         <button
                           type="button"
                           onClick={handleApplyCoupon}
                           disabled={couponChecking || !couponInput.trim()}
-                          className="flex-shrink-0 px-5 py-2.5 rounded-lg font-semibold text-sm bg-blue-400 hover:bg-blue-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 transition-colors"
+                          className="px-5 rounded-[25px] font-bold text-sm bg-white hover:bg-gray-200 text-black disabled:opacity-80 disabled:hover:bg-white transition-colors"
                         >
-                          {couponChecking ? <Loader className="w-4 h-4 animate-spin" /> : 'Apply'}
+                          {couponChecking ? (
+                            <Loader className="w-4 h-4 animate-spin" />
+                          ) : (
+                            "Apply"
+                          )}
                         </button>
                       </div>
                       {couponError && (
-                        <p className="text-xs text-red-400 mt-1.5 flex items-start gap-1">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" /> {couponError}
+                        <p className="text-xs text-red-400 mt-2 font-medium">
+                          {couponError}
                         </p>
                       )}
                       {couponNotice && !couponError && (
-                        <p className="text-xs text-yellow-400 mt-1.5 flex items-start gap-1">
-                          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" /> {couponNotice}
+                        <p className="text-xs text-yellow-400 mt-2 font-medium">
+                          {couponNotice}
                         </p>
                       )}
                     </div>
                   )}
                 </div>
-
-                {appliedCoupon && (
-                  <div className="flex justify-between text-sm text-gray-400 pt-1">
-                    <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
-                  </div>
-                )}
-                {appliedCoupon && discountAmount > 0 && (
-                  <div className="flex justify-between text-sm text-green-400 pt-1">
-                    <span>Discount</span>
-                    <span>-${discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-white font-semibold text-base pt-2">
-                  <span>Total Amount</span>
-                  <span className="heading-display text-blue-300 text-xl">${finalTotal.toFixed(2)}</span>
-                </div>
-                {exchangeRates.filter(r => r.currency_code !== 'USD').map(r => (
-                  <div key={r.id} className="flex justify-between text-sm text-gray-400 pt-1">
-                    <span>≈ {r.currency_code} (1 USD = {r.rate_per_usd} {r.currency_code})</span>
-                    <span className="font-medium">{r.symbol}{(finalTotal * Number(r.rate_per_usd)).toFixed(2)}</span>
-                  </div>
-                ))}
               </div>
-            </details>
+            </div>
+          </div>
+        </BeamBorder>
 
-            {/* Dropdown 2: Delivery Details */}
-            <details className="rounded-2xl p-6 group backdrop-blur-xl bg-gradient-to-br from-black/70 via-slate-900/60 to-blue-950/50 border border-white/10 shadow-lg" open>
-              <summary className="flex items-center justify-between cursor-pointer list-none">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 backdrop-blur flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-blue-300" />
-                  </div>
-                  <h3 className="heading-display text-lg font-bold text-white">Delivery Details</h3>
-                </div>
-                <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-open:bg-blue-500/10 group-open:border-blue-400/30 transition-colors">
-                  <ChevronDown className="w-4 h-4 text-gray-400 group-open:text-blue-300 group-open:rotate-180 transition-transform" />
-                </div>
-              </summary>
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="sm:col-span-2">
-                  <label className="label-game">Your Name (who makes the payment)</label>
-                  <input
-                    value={delivery.customer_name}
-                    onChange={e => setDelivery(d => ({ ...d, customer_name: e.target.value }))}
-                    onBlur={() => setDeliveryTouched(true)}
-                    placeholder="John Doe"
-                    className="w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50"
-                  />
-                </div>
-                <div>
-                  <label className="label-game">Castle Name</label>
-                  <input
-                    value={delivery.castle_name}
-                    onChange={e => setDelivery(d => ({ ...d, castle_name: e.target.value }))}
-                    placeholder="Iron Keep"
-                    className="w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50"
-                  />
-                </div>
-                <div>
-                  <label className="label-game">Castle Level</label>
-                  <input
-                    value={delivery.castle_level}
-                    onChange={e => setDelivery(d => ({ ...d, castle_level: e.target.value }))}
-                    placeholder="p2, p6..."
-                    className="w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50"
-                  />
-                </div>
-                <div>
-                  <label className="label-game">Kingdom</label>
-                  <input
-                    value={delivery.kingdom}
-                    onChange={e => setDelivery(d => ({ ...d, kingdom: e.target.value }))}
-                    placeholder="Kingdom name"
-                    className="w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50"
-                  />
-                </div>
-                <div>
-                  <label className="label-game">Coordinates</label>
-                  <input
-                    value={delivery.coordinates}
-                    onChange={e => setDelivery(d => ({ ...d, coordinates: e.target.value }))}
-                    placeholder="e.g. 512:384"
-                    className="w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50"
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="label-game">WhatsApp Number</label>
-                  <input
-                    value={delivery.whatsapp_number}
-                    onChange={e => setDelivery(d => ({ ...d, whatsapp_number: e.target.value }))}
-                    placeholder="countrycode-number (e.g. 91-9876543210)"
-                    className="w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50"
-                  />
-                </div>
-                {deliveryTouched && !deliveryValid && (
-                  <p className="sm:col-span-2 text-xs text-red-400">Please fill in all delivery fields.</p>
-                )}
-              </div>
-            </details>
+        <h2 className="text-base font-bold text-white mb-3 text-center tracking-wide">
+          Delivery Details
+        </h2>
 
-            {/* Dropdown 3: Payment Methods */}
-            <details className="rounded-2xl p-6 group backdrop-blur-xl bg-gradient-to-br from-black/70 via-slate-900/60 to-blue-950/50 border border-white/10 shadow-lg" open>
-              <summary className="flex items-center justify-between cursor-pointer list-none">
-                <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 backdrop-blur flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-blue-300" />
-                  </div>
-                  <h3 className="heading-display text-lg font-bold text-white">Payment Method</h3>
-                </div>
-                <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-open:bg-blue-500/10 group-open:border-blue-400/30 transition-colors">
-                  <ChevronDown className="w-4 h-4 text-gray-400 group-open:text-blue-300 group-open:rotate-180 transition-transform" />
-                </div>
-              </summary>
-              <div className="mt-4 space-y-3">
-                <select
-                  value={selectedMethod}
-                  onChange={e => setSelectedMethod(e.target.value)}
-                  className="w-full rounded-lg px-4 py-2.5 transition-all focus:outline-none bg-black/30 backdrop-blur border border-white/10 text-gray-200 placeholder:text-gray-500 focus:border-blue-400/50"
-                >
-                  <option value="" style={{ backgroundColor: '#0f172a', color: '#d1d5db' }}>Select a payment method...</option>
-                  {paymentMethods.map(m => (
-                    <option key={m.id} value={m.id} style={{ backgroundColor: '#0f172a', color: '#d1d5db' }}>{m.name}</option>
-                  ))}
-                </select>
+        <div className="bg-[#161616] rounded-[38px] p-9 mb-10 shadow-lg border border-[#2a2a2a] grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-5">
+          <div className="sm:col-span-2">
+            <InputField
+              label="Your Name (Who makes the payment)"
+              value={delivery.customer_name}
+              onChange={(e) =>
+                setDelivery((d) => ({ ...d, customer_name: e.target.value }))
+              }
+              onBlur={() => setDeliveryTouched(true)}
+            />
+          </div>
+          <div>
+            <InputField
+              label="Castle Name"
+              value={delivery.castle_name}
+              onChange={(e) =>
+                setDelivery((d) => ({ ...d, castle_name: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <InputField
+              label="Castle Level (e.g. p2, p6)"
+              value={delivery.castle_level}
+              onChange={(e) =>
+                setDelivery((d) => ({ ...d, castle_level: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <InputField
+              label="Kingdom"
+              value={delivery.kingdom}
+              onChange={(e) =>
+                setDelivery((d) => ({ ...d, kingdom: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <InputField
+              label="Coordinates (e.g. 512:384)"
+              value={delivery.coordinates}
+              onChange={(e) =>
+                setDelivery((d) => ({ ...d, coordinates: e.target.value }))
+              }
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <InputField
+              label="WhatsApp Number (with country code)"
+              value={delivery.whatsapp_number}
+              onChange={(e) =>
+                setDelivery((d) => ({ ...d, whatsapp_number: e.target.value }))
+              }
+            />
+          </div>
+          {deliveryTouched && !deliveryValid && (
+            <p className="sm:col-span-2 text-sm text-red-400 font-medium mt-1">
+              Please fill in all fields to continue.
+            </p>
+          )}
+        </div>
 
+        <h2 className="text-base font-bold text-white mb-3 text-center tracking-wide">
+          Select Your Payment Method
+        </h2>
+
+        <BeamBorder
+          size="pulse-outside"
+          colorVariant="mono"
+          theme="dark"
+          active={true}
+          strength={1}
+          duration={1.1}
+          beamWidth={2}
+          className="w-full max-w-3xl mb-9"
+        >
+          <div
+            className="relative flex flex-col gap-4 rounded-2xl p-8 text-white"
+            style={{ backgroundColor: "transparent" }}
+          >
+            {/* Inner box 1: Payment Methods Dropdown */}
+            <div className="rounded-2xl bg-gradient-to-b from-[#111111]/80 to-[#1c1c1c]/80 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[13px] font-bold text-[#a3a3a3] uppercase tracking-wider">
+                  Payment Options
+                </span>
                 {selectedPayment && (
-                  <div className="bg-black/30 rounded-lg p-4 border border-white/10 space-y-3">
-                    <p className="text-sm font-semibold text-blue-300">{selectedPayment.name}</p>
-                    <p className="text-sm text-gray-400 whitespace-pre-line leading-relaxed">
-                      {(PAYMENT_INSTRUCTIONS[selectedPayment.name] ?? DEFAULT_PAYMENT_INSTRUCTIONS).text}
-                    </p>
+                  <span className="text-xs text-[#4ade80] font-medium">
+                    {selectedPayment.name} selected
+                  </span>
+                )}
+              </div>
 
-                    {PAYMENT_INSTRUCTIONS[selectedPayment.name]?.payButtonUrl && (
-                      <div className="flex justify-center py-1">
-                        <a
-                          href={PAYMENT_INSTRUCTIONS[selectedPayment.name]!.payButtonUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-3 pl-3 pr-2 py-2 rounded-full bg-blue-400 hover:bg-blue-300 transition-colors duration-200 active:scale-95"
-                        >
-                          {PAYMENT_INSTRUCTIONS[selectedPayment.name]?.payButtonIcon && (
-                            <img
-                              src={PAYMENT_INSTRUCTIONS[selectedPayment.name]!.payButtonIcon}
-                              alt={selectedPayment.name}
-                              className="h-6 w-auto rounded"
-                            />
-                          )}
-                          <span className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center flex-shrink-0">
-                            <ArrowUpRight className="w-4 h-4 text-white" />
-                          </span>
-                        </a>
-                      </div>
-                    )}
+              <div className="space-y-3">
+                {paymentMethods.map((m) => {
+                  const isSelected = selectedMethod === m.id;
 
-                    {PAYMENT_INSTRUCTIONS[selectedPayment.name]?.guideUrl && (
-                      <a
-                        href={PAYMENT_INSTRUCTIONS[selectedPayment.name]!.guideUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-full font-semibold text-sm transition-all duration-200 active:scale-95 bg-green-500 hover:bg-green-400 text-slate-950"
-                        style={{ fontFamily: '"Cinzel", Georgia, serif' }}
+                  return (
+                    <div
+                      key={m.id}
+                      className={`rounded-xl border transition-all duration-200 overflow-hidden ${
+                        isSelected
+                          ? "border-white/30 bg-[#1f1f1f]/90 shadow-md"
+                          : "border-[#2a2a2a] bg-[#141414]/90 hover:border-[#3a3a3a] hover:bg-[#1a1a1a]/90"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setSelectedMethod(isSelected ? "" : m.id)}
+                        className="w-full flex justify-between items-center px-5 py-4 outline-none transition-colors"
                       >
-                        Open Guide
-                      </a>
-                    )}
-                    <PicturePlaceholder
-                      label={`${selectedPayment.name}-instructions.png`}
-                      src={PAYMENT_INSTRUCTIONS[selectedPayment.name]?.image}
+                        <div className="flex items-center gap-3 text-left">
+                          <div
+                            className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
+                              isSelected
+                                ? "border-white bg-white"
+                                : "border-[#555] bg-transparent"
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-black" />
+                            )}
+                          </div>
+                          <span className="font-bold text-[15px] text-white">
+                            {m.name}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-6 bg-white rounded flex items-center justify-center shadow-sm">
+                            {getPaymentIcon(m.name)}
+                          </div>
+                          {isSelected ? (
+                            <ChevronUp className="w-5 h-5 text-[#a3a3a3]" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-[#a3a3a3]" />
+                          )}
+                        </div>
+                      </button>
+
+                      {isSelected && (
+                        <div className="px-5 pb-5 pt-1 border-t border-white/10 bg-[#111111]/90">
+                          <div className="bg-[#1a1a1a] rounded-lg p-4 mt-3 border border-[#2a2a2a]">
+                            {isCryptoPayment(m.name) ? (
+                              <div className="space-y-4">
+                                {/* USDT Warning Message */}
+                                <div className="flex items-start gap-3 p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300">
+                                  <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                                  <div className="text-sm">
+                                    <p className="font-bold text-amber-200 text-[14px]">
+                                      Only USDT is Accepted
+                                    </p>
+                                    <p className="text-xs text-amber-300/90 mt-1 leading-relaxed">
+                                      Please note that <strong>only USDT</strong> is accepted. Only send USDT to the following addresses on your chosen network.
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* Network Selection Options */}
+                                <div>
+                                  <label className="block text-xs font-bold text-[#a3a3a3] uppercase tracking-wider mb-2.5">
+                                    Select Your Network / Chain:
+                                  </label>
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                    {CRYPTO_NETWORKS.map((network) => {
+                                      const isNetworkActive =
+                                        selectedCryptoNetwork === network.id;
+                                      return (
+                                        <button
+                                          key={network.id}
+                                          type="button"
+                                          onClick={() =>
+                                            setSelectedCryptoNetwork(network.id)
+                                          }
+                                          className={`px-3 py-3 rounded-lg text-xs font-bold transition-all text-center flex flex-col items-center justify-center gap-1 border ${
+                                            isNetworkActive
+                                              ? "bg-white text-black border-white shadow-md scale-[1.01]"
+                                              : "bg-[#141414] text-[#a3a3a3] border-[#333] hover:text-white hover:border-[#555] hover:bg-[#1f1f1f]"
+                                          }`}
+                                        >
+                                          <span>{network.name}</span>
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+
+                                {/* Network Details & QR Image */}
+                                {(() => {
+                                  const activeNet =
+                                    CRYPTO_NETWORKS.find(
+                                      (n) => n.id === selectedCryptoNetwork,
+                                    ) ?? CRYPTO_NETWORKS[0];
+                                  return (
+                                    <div className="pt-3 border-t border-[#2a2a2a] space-y-3">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs font-bold text-white uppercase tracking-wider">
+                                          Network: {activeNet.name}
+                                        </span>
+                                        <span className="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">
+                                          USDT ({activeNet.badge})
+                                        </span>
+                                      </div>
+
+                                      <p className="text-[13px] text-gray-300 leading-relaxed font-medium">
+                                        {activeNet.description}
+                                      </p>
+
+                                      <div className="mt-3">
+                                        <PicturePlaceholder
+                                          label={`${activeNet.name} USDT Deposit Address & QR`}
+                                          src={activeNet.image}
+                                        />
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                              </div>
+                            ) : (
+                              <div>
+                                <p className="text-[14px] text-gray-300 whitespace-pre-line leading-relaxed font-medium">
+                                  {
+                                    (
+                                      PAYMENT_INSTRUCTIONS[m.name] ??
+                                      DEFAULT_PAYMENT_INSTRUCTIONS
+                                    ).text
+                                  }
+                                </p>
+
+                                <div className="flex flex-wrap gap-3 mt-4">
+                                  {PAYMENT_INSTRUCTIONS[m.name]?.payButtonUrl && (
+                                    <a
+                                      href={PAYMENT_INSTRUCTIONS[m.name]!.payButtonUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 px-4 py-2 rounded bg-white hover:bg-gray-200 text-black font-bold text-sm transition-colors"
+                                    >
+                                      Pay Now <ArrowUpRight className="w-4 h-4" />
+                                    </a>
+                                  )}
+                                  {PAYMENT_INSTRUCTIONS[m.name]?.guideUrl && (
+                                    <a
+                                      href={PAYMENT_INSTRUCTIONS[m.name]!.guideUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-2 px-4 py-2 rounded bg-[#333] hover:bg-[#444] text-white font-bold text-sm transition-colors"
+                                    >
+                                      View Guide
+                                    </a>
+                                  )}
+                                </div>
+
+                                {PAYMENT_INSTRUCTIONS[m.name]?.image && (
+                                  <div className="mt-4 pt-4 border-t border-[#2a2a2a]">
+                                    <PicturePlaceholder
+                                      label="Payment Details"
+                                      src={PAYMENT_INSTRUCTIONS[m.name]?.image}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Inner box 2: Upload Receipt & Submit Section */}
+            <div className="rounded-2xl bg-gradient-to-b from-[#111111]/80 to-[#1c1c1c]/80 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[13px] font-bold text-[#a3a3a3] uppercase tracking-wider">
+                  Upload Payment Receipt
+                </span>
+                <span className="text-xs text-[#a3a3a3]">
+                  PNG, JPG up to 10MB
+                </span>
+              </div>
+
+              <form onSubmit={handleCheckout} className="space-y-5">
+                <div>
+                  <label className="block w-full">
+                    <div
+                      className={`border border-dashed rounded-xl p-6 text-center cursor-pointer transition-all ${
+                        receiptFile
+                          ? "border-[#4ade80] bg-[#4ade80]/10"
+                          : "border-[#444] bg-[#141414] hover:bg-[#1a1a1a]"
+                      }`}
+                    >
+                      {receiptFile ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <Check className="w-6 h-6 text-[#4ade80]" />
+                          <p className="text-sm text-[#4ade80] font-bold">
+                            {receiptFile.name}
+                          </p>
+                          <p className="text-xs text-[#a3a3a3]">
+                            Click to change receipt
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <Upload className="w-6 h-6 text-[#a3a3a3]" />
+                          <p className="text-sm text-white font-bold">
+                            Upload Payment Receipt
+                          </p>
+                          <p className="text-xs text-[#a3a3a3]">
+                            Click or drag file to attach proof
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) =>
+                        setReceiptFile(e.target.files?.[0] ?? null)
+                      }
+                    />
+                  </label>
+                </div>
+
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className="relative flex items-center justify-center w-5 h-5 mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={paidConfirmed}
+                      onChange={(e) => setPaidConfirmed(e.target.checked)}
+                      className="peer appearance-none w-5 h-5 border-2 border-[#555] rounded-sm bg-transparent checked:bg-white checked:border-white transition-colors cursor-pointer"
+                    />
+                    <Check
+                      className="w-3.5 h-3.5 text-black absolute opacity-0 peer-checked:opacity-100 pointer-events-none font-bold"
+                      strokeWidth={4}
                     />
                   </div>
-                )}
-              </div>
-            </details>
-
-            {/* Receipt upload & confirmation */}
-            <form onSubmit={handleCheckout} className="rounded-2xl p-6 space-y-5 backdrop-blur-xl bg-gradient-to-br from-black/70 via-slate-900/60 to-blue-950/50 border border-white/10 shadow-lg">
-              <div>
-                <h3 className="heading-display text-lg font-bold text-white mb-2">Upload Payment Receipt</h3>
-                <p className="text-sm text-gray-500 mb-4 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-blue-300 flex-shrink-0 mt-0.5" />
-                  <span>You are required to upload the payment receipt/screenshot for the order to be generated.</span>
-                </p>
-
-                <label className="block">
-                  <div className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${receiptFile ? 'border-green-600/50 bg-green-500/5' : 'border-white/10 bg-black/30 hover:border-blue-400/40 hover:bg-blue-500/5'}`}>
-                    {receiptFile ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <Check className="w-8 h-8 text-green-400" />
-                        <p className="text-sm text-green-400 font-medium">{receiptFile.name}</p>
-                        <p className="text-xs text-gray-500">Click to change file</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center gap-2">
-                        <Upload className="w-8 h-8 text-blue-400" />
-                        <p className="text-sm text-gray-400">Click to upload receipt/screenshot</p>
-                        <p className="text-xs text-gray-600">PNG, JPG up to 10MB</p>
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={e => setReceiptFile(e.target.files?.[0] ?? null)}
-                  />
+                  <span className="text-[14px] text-[#a3a3a3] font-medium leading-snug group-hover:text-white transition-colors">
+                    I confirm I have successfully transferred exactly{" "}
+                    <strong className="text-white">
+                      ${finalTotal.toFixed(2)}
+                    </strong>{" "}
+                    via{" "}
+                    {selectedPayment
+                      ? `${selectedPayment.name}${
+                          isCryptoPayment(selectedPayment.name)
+                            ? ` (${
+                                (
+                                  CRYPTO_NETWORKS.find(
+                                    (n) => n.id === selectedCryptoNetwork,
+                                  ) ?? CRYPTO_NETWORKS[0]
+                                ).name
+                              })`
+                            : ""
+                        }`
+                      : "the selected payment method"}
+                    .
+                  </span>
                 </label>
-              </div>
 
-              <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg hover:bg-white/5 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={paidConfirmed}
-                  onChange={e => setPaidConfirmed(e.target.checked)}
-                  className="mt-0.5 w-5 h-5 rounded accent-blue-500 flex-shrink-0"
-                />
-                <span className="text-sm text-gray-300">
-                  I have paid the amount using the payment method I selected above.
-                </span>
-              </label>
-
-              {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-600/30">
-                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-                  <p className="text-sm text-red-400">{error}</p>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={!canSubmit}
-                className="w-full inline-flex items-center justify-center gap-3 pl-6 pr-2 py-2 rounded-full font-semibold transition-all duration-200 active:scale-95 bg-blue-400 hover:bg-blue-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-400"
-              >
-                <span className="text-sm text-slate-950" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
-                  {submitting ? 'Processing...' : 'Payment Completed — Generate Order'}
-                </span>
-                <span className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center flex-shrink-0">
-                  {submitting ? <Loader className="w-4 h-4 text-white animate-spin" /> : <Check className="w-4 h-4 text-white" />}
-                </span>
-              </button>
-
-              {!canSubmit && !submitting && (
-                <p className="text-xs text-gray-600 text-center">
-                  {!deliveryValid ? 'Fill in all delivery details' : !selectedMethod ? 'Select a payment method' : !paidConfirmed ? 'Confirm you have paid' : !receiptFile ? 'Upload your receipt' : ''}
-                </p>
-              )}
-            </form>
-          </div>
-
-          {/* Sidebar summary */}
-          <div className="rounded-2xl p-6 h-fit sticky top-24 backdrop-blur-xl bg-gradient-to-br from-black/70 via-slate-900/60 to-blue-950/50 border border-white/10 shadow-lg">
-            <h3 className="heading-display text-lg font-bold text-white mb-4">Summary</h3>
-            <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-              {items.map(item => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <div className="min-w-0">
-                    <p className="text-white font-medium truncate">{item.name}</p>
-                    <p className="text-gray-500 text-xs">Qty: {item.quantity}</p>
+                {error && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-red-900/30 border border-red-900/50">
+                    <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                    <p className="text-sm text-red-200 font-medium">
+                      {error}
+                    </p>
                   </div>
-                  <span className="text-gray-400 flex-shrink-0">${(Number(item.price) * item.quantity).toFixed(2)}</span>
-                </div>
-              ))}
+                )}
+
+                <button
+                  type="submit"
+                  disabled={!canSubmit}
+                  className="w-full flex items-center justify-center gap-2 py-4 rounded font-bold text-[15px] transition-all bg-white hover:bg-gray-200 disabled:opacity-50 disabled:hover:bg-white text-black mt-2"
+                >
+                  {submitting ? "Processing..." : "Submit Order"}
+                  {submitting && (
+                    <Loader className="w-4 h-4 border-black" />
+                  )}
+                </button>
+
+                {!canSubmit && !submitting && (
+                  <p className="text-xs text-[#777] text-center font-medium">
+                    {!selectedMethod
+                      ? "Select a payment method above to submit."
+                      : !deliveryValid
+                        ? "Complete delivery details above to submit."
+                        : !receiptFile
+                          ? "Upload your receipt to submit."
+                          : !paidConfirmed
+                            ? "Confirm your payment to submit."
+                            : ""}
+                  </p>
+                )}
+              </form>
             </div>
-            <div className="border-t border-white/10 pt-3 space-y-1">
-              {appliedCoupon && (
-                <>
-                  <div className="flex justify-between text-sm text-gray-400">
-                    <span>Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-green-400">
-                    <span>Discount ({appliedCoupon.code})</span>
-                    <span>-${discountAmount.toFixed(2)}</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between text-white font-semibold text-base pt-1">
-                <span>Total</span>
-                <span className="heading-display text-blue-300">${finalTotal.toFixed(2)}</span>
-              </div>
-            </div>
-            {exchangeRates.filter(r => r.currency_code !== 'USD').map(r => (
-              <div key={r.id} className="flex justify-between text-sm text-gray-400 pt-1">
-                <span>≈ {r.currency_code} (1 USD = {r.rate_per_usd} {r.currency_code})</span>
-                <span className="font-medium">{r.symbol}{(finalTotal * Number(r.rate_per_usd)).toFixed(2)}</span>
-              </div>
-            ))}
           </div>
+        </BeamBorder>
+
+        <div className="text-center text-xs text-[#666] font-medium pb-8">
+          <p>© 2026 Castle Kings. All rights reserved.</p>
         </div>
       </div>
     </div>
