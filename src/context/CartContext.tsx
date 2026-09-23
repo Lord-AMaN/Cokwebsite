@@ -9,6 +9,8 @@ export type CartItem = {
   price: number;
   quantity: number;
   metadata: Record<string, unknown>;
+  color_label?: string;
+  color_swatch?: string;
 };
 
 type AddItemInput = Omit<CartItem, 'id'>;

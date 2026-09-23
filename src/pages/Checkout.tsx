@@ -224,7 +224,7 @@ export default function Checkout() {
   }, []);
 
   const selectedPayment = paymentMethods.find((m) => m.id === selectedMethod);
-  const { subtotal, discountAmount, finalTotal } = computeDiscount(
+  const {  discountAmount, finalTotal } = computeDiscount(
     appliedCoupon,
     items,
   );
