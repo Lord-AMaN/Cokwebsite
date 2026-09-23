@@ -1093,10 +1093,7 @@ export default function Checkout() {
           </div>
         </BeamBorder>
 
-        <div className="text-center text-xs text-[#666] font-medium pb-8">
-          <p>© 2026 Castle Kings. All rights reserved.</p>
-        </div>
-      </div>
+              </div>
     </div>
   );
 }
