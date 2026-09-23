@@ -25,7 +25,7 @@ export default function App() {
   return (
     <CartProvider>
       <ScrollToTop />
-      <div className="scale-90 origin-top flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen">
         <Navbar />
         <main className="flex-1">
           {/* Suspense fallback ensures the 3D pyramid appears during page transitions */}
