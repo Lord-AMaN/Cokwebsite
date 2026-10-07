@@ -6,7 +6,7 @@ import VideoModal from '../components/VideoModal';
 import { getYouTubeId } from '../lib/youtube';
 import { Loader } from '../components/LoadingSpinner';
 
-type BotFarmType = 'normal' | 'autoshield';
+type BotFarmType =  'autoshield';
 
 type BotFarmSettings = {
   id: string;
@@ -16,12 +16,6 @@ type BotFarmSettings = {
 };
 
 const FARM_CONFIG: Record<BotFarmType, { title: string; description: string; accent: 'blue' | 'green'; features: string[] }> = {
-  normal: {
-    title: 'Bot Farm',
-    description: 'Automated farming account. Gathers resources and upgrades the farm continuously.',
-    accent: 'blue',
-    features: ['Auto-gathers resources', 'Auto-upgrades farm', 'Cheap'],
-  },
   autoshield: {
     title: 'Autoshield Bot Farm',
     description: 'Everything the standard farm does, plus automatic shielding when under attack.',
@@ -190,7 +184,7 @@ export default function BotFarms() {
     })();
   }, []);
 
-  const normal = rows.find(r => r.type === 'normal');
+ 
   const autoshield = rows.find(r => r.type === 'autoshield');
 
   if (loading)
@@ -213,7 +207,7 @@ export default function BotFarms() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           <FarmCard type="autoshield" settings={autoshield} onAdded={() => {}} />
- {/* <FarmCard type="normal" settings={normal} onAdded={() => {}} /> */}
+          {/* <FarmCard type="normal" settings={normal} onAdded={() => {}} /> */}
         </div>
       </div>
     </div>
