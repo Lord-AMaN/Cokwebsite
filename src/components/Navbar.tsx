@@ -137,7 +137,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           <Link
             to="/cart"
-            className="relative p-2 rounded-lg text-gray-400 hover:text-gold-300 hover:bg-night-700/50 transition-all"
+            className="relative p-3 rounded-lg text-gray-400 hover:text-gold-300 hover:bg-night-700/50 transition-all min-w-[2.75rem] min-h-[2.75rem] flex items-center justify-center"
             aria-label="Cart"
           >
             <ShoppingCart className="w-5 h-5" />
@@ -149,11 +149,11 @@ export default function Navbar() {
           </Link>
 
           <button
-            className="md:hidden text-gray-300"
+            className="md:hidden text-gray-300 p-2 min-w-[2.75rem] min-h-[2.75rem] flex items-center justify-center"
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
           >
-            {open ? <X /> : <Menu />}
+            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </nav>
@@ -162,18 +162,18 @@ export default function Navbar() {
         <div className="md:hidden bg-night-950/95 backdrop-blur-lg border-b border-night-700">
           <div className="container-game py-4 flex flex-col gap-1">
             {navLinks.map((link) => {
-            
+
               const isActive = location.pathname === link.to;
               return (
                 <Link
                   key={link.to}
                   to={link.to}
                   className={cx(
-                    'px-4 py-3 rounded-lg text-sm font-medium flex items-center gap-2',
+                    'px-4 py-4 rounded-lg text-base font-medium flex items-center gap-3 min-h-[3.25rem]',
                     isActive ? cx(link.activeText, link.activeBg) : 'text-gray-400 hover:text-white hover:bg-night-700/50'
                   )}
                 >
-                  
+
                   {link.label}
                 </Link>
               );

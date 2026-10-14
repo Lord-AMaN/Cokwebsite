@@ -24,48 +24,48 @@ export default function Hero() {
           <span className="text-gradient-gold">The West</span>
         </h1>*/}
         <div className="flex justify-center mb-16 mt-16 animate-slide-up">
-        <img 
-          src="/logo.png" 
-          alt="Clash of Kings The West" 
+        <img
+          src="/logo.png"
+          alt="Clash of Kings The West"
           className="h-auto max-w-full w-[240px] md:w-[260px] object-contain"
         />
         </div>
 
       {/* Skins Section */}
 <div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-  <div className="flex items-center justify-between gap-6">
-    <p className="text-lg md:text-xl text-gray-400 leading-relaxed text-left">
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+    <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed text-left">
       Panda, Knight, Dragon, Easter, Ice Skins Available
     </p>
-    <Link to="/Skins" className="inline-flex items-center gap-5 pl-6 pr-2 py-2.5 rounded-full bg-yellow-400 hover:bg-yellow-300 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
-    Buy Skins    
-       <span className="w-8 h-8 rounded-full bg-yellow-700 flex items-center justify-center">
+    <Link to="/Skins" className="inline-flex items-center gap-5 pl-6 pr-2 py-3 sm:py-2.5 rounded-full bg-yellow-400 hover:bg-yellow-300 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    Buy Skins
+       <span className="w-8 h-8 rounded-full bg-yellow-700 flex items-center justify-center flex-shrink-0">
                     <ArrowUpRight className="w-4 h-4 text-white" />
                   </span>
-      
+
     </Link>
   </div>
 </div>
 
 {/* Packages Section */}
 <div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-  <div className="flex items-center justify-between gap-6">
-    
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+
     {/* Text Container: Flex column stacks the two lines vertically */}
     <div className="flex flex-col text-left">
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+      <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
         20% Discount on packages Available
       </p>
-      <p className="text-md md:text-lg text-gray-500 leading-relaxed italic">
+      <p className="text-sm sm:text-md md:text-lg text-gray-500 leading-relaxed italic">
         (*Account Access not Needed)
       </p>
-     
+
     </div>
-    
+
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/Packages" className="inline-flex items-center gap-5 pl-6 pr-2 py-2.5 rounded-full bg-blue-400 hover:bg-blue-500 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    <Link to="/Packages" className="inline-flex items-center gap-5 pl-6 pr-2 py-3 sm:py-2.5 rounded-full bg-blue-400 hover:bg-blue-500 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
       Buy Packages
-      <span className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center">
+      <span className="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center flex-shrink-0">
                     <ArrowUpRight className="w-4 h-4 text-white" />
                   </span>
     </Link>
@@ -74,19 +74,19 @@ export default function Hero() {
 
 {/* Resources Section */}
 <div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-  <div className="flex items-center justify-between gap-6">
-    
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+
     {/* Text Container: Flex column stacks the two lines vertically */}
     <div className="flex flex-col text-left">
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
-         Short on Food<img src="/wheat.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or Mithril<img src="/iron1.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or others ?  
+      <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
+         Short on Food<img src="/wheat.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or Mithril<img src="/iron1.png" alt="icon" className="w-7 h-7 mx-2 inline-block" /> or others ?
       </p>
     </div>
-    
+
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/Resources" className="inline-flex items-center gap-4 pl-6 pr-2 py-2.5 rounded-full bg-green-400 hover:bg-green-500 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    <Link to="/Resources" className="inline-flex items-center gap-4 pl-6 pr-2 py-3 sm:py-2.5 rounded-full bg-green-400 hover:bg-green-500 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
       Get Resources
-      <span className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center">
+      <span className="w-8 h-8 rounded-full bg-green-700 flex items-center justify-center flex-shrink-0">
                     <ArrowUpRight className="w-4 h-4 text-white" />
                   </span>
     </Link>
@@ -95,22 +95,22 @@ export default function Hero() {
 
 {/* Guides Section */}
 <div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-  <div className="flex items-center justify-between gap-6">
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
     {/* Wrapped text in a div so it can wrap without pushing the button */}
-    <div className="text-left max-w-[70%]">
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+    <div className="text-left">
+      <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
         Problems growing your castle? Low power?
       </p>
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+      <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
         Confused in Troop mechanisms?
-        <p className="text-md md:text-lg text-red-500 leading-relaxed italic">
+        <p className="text-sm sm:text-md md:text-lg text-red-500 leading-relaxed italic">
         (Coming soon)
       </p>
       </p>
     </div>
-    <Link to="/guides" className="inline-flex items-center gap-4 pl-4 pr-2 py-2.5 rounded-full bg-red-500 hover:bg-red-400 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    <Link to="/guides" className="inline-flex items-center gap-4 pl-4 pr-2 py-3 sm:py-2.5 rounded-full bg-red-500 hover:bg-red-400 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
       Game Guides
-      <span className="w-8 h-8 rounded-full bg-red-900 flex items-center justify-center">
+      <span className="w-8 h-8 rounded-full bg-red-900 flex items-center justify-center flex-shrink-0">
         <ArrowUpRight className="w-4 h-4 text-white" />
       </span>
     </Link>
@@ -118,41 +118,41 @@ export default function Hero() {
 </div>
 
 <div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-  <div className="flex items-center justify-between gap-6">
-    
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+
     {/* Text Container: Flex column stacks the two lines vertically */}
     <div className="flex flex-col text-left">
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
-         Want to Purchase a Castle or Sell one ? 
+      <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
+         Want to Purchase a Castle or Sell one ?
       </p>
     </div>
-    
+
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/Castles" className="inline-flex items-center gap-4 pl-4 pr-2 py-2.5 rounded-full bg-purple-500 hover:bg-purple-400 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    <Link to="/Castles" className="inline-flex items-center gap-4 pl-4 pr-2 py-3 sm:py-2.5 rounded-full bg-purple-500 hover:bg-purple-400 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
       Buy/Sell Castles
-      <span className="w-8 h-8 rounded-full bg-purple-900 flex items-center justify-center">
+      <span className="w-8 h-8 rounded-full bg-purple-900 flex items-center justify-center flex-shrink-0">
         <ArrowUpRight className="w-4 h-4 text-white" />
       </span>
     </Link>
   </div>
 </div>
 <div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
-  <div className="flex items-center justify-between gap-6">
-    
+  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+
     {/* Text Container: Flex column stacks the two lines vertically */}
     <div className="flex flex-col text-left">
-      <p className="text-lg md:text-xl text-gray-400 leading-relaxed">
+      <p className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed">
          Bots Farms for farming resources in new kingdoms
       </p>
-      <p className="text-md md:text-lg text-red-500 leading-relaxed italic">
+      <p className="text-sm sm:text-md md:text-lg text-red-500 leading-relaxed italic">
         (*only $3.5/farm per month)
       </p>
     </div>
-    
+
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/Castles" className="inline-flex items-center gap-4 pl-4 pr-2 py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 transition-colors duration-200 active:scale-95 font-semibold text-m text-black " style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    <Link to="/Castles" className="inline-flex items-center gap-4 pl-4 pr-2 py-3 sm:py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
       Bot Farms
-      <span className="w-8 h-8 rounded-full bg-orange-900 flex items-center justify-center">
+      <span className="w-8 h-8 rounded-full bg-orange-900 flex items-center justify-center flex-shrink-0">
         <ArrowUpRight className="w-4 h-4 text-white" />
       </span>
     </Link>

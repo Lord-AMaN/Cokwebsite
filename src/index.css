@@ -1,6 +1,11 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cinzel:wght@600;700;800;900&display=swap');
-
+html, body, #root {
+  background-color: #000000;
+  color: #ffffff;
+  min-height: 100vh;
+  margin: 0;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -109,3 +114,151 @@
 ::-webkit-scrollbar-track { background: #080506; }
 ::-webkit-scrollbar-thumb { background: #2e1818; border-radius: 5px; }
 ::-webkit-scrollbar-thumb:hover { background: #3d2020; }
+
+/* =====================================================
+   MOBILE-ONLY OVERRIDES (max-width: 767px / Android)
+   Desktop (≥768px) is completely unaffected.
+   ===================================================== */
+@media (max-width: 767px) {
+  /* ── Container: more breathing room ── */
+  .container-game {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  /* ── Buttons: larger tap targets ── */
+  .btn-primary,
+  .btn-gold,
+  .btn-outline {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    font-size: 1rem;
+    min-height: 3rem;
+  }
+
+  /* ── Input fields: bigger text & height ── */
+  .input-game {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+    font-size: 1rem;
+  }
+
+  /* ── Cards: more internal padding ── */
+  .card-game {
+    padding: 1.25rem;
+  }
+
+  /* ── Labels ── */
+  .label-game {
+    font-size: 0.9375rem;
+  }
+
+  /* ── Hero section: stack text+button rows vertically ── */
+  .hero-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+  }
+
+  /* Wider, full-width hero CTA buttons */
+  .hero-row a[class*="rounded-full"],
+  .hero-row a[class*="btn"] {
+    width: 100%;
+    justify-content: center;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+    font-size: 1rem;
+  }
+
+  /* ── Navbar mobile menu links: bigger touch targets ── */
+  header > div:last-child a,
+  header > div:last-child button {
+    padding-top: 0.875rem;
+    padding-bottom: 0.875rem;
+    font-size: 1rem;
+  }
+
+  /* ── Section heading text: breathe more ── */
+  .heading-display {
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Page headings: scale up slightly ── */
+  h1.heading-display {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  /* ── Filter buttons (Skins, Castles pages) ── */
+  button[class*="px-5"][class*="py-2"][class*="rounded-lg"],
+  button[class*="px-5"][class*="py-2"][class*="rounded-full"] {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+  }
+
+  /* ── Skin / Castle card image area: taller on mobile ── */
+  .card-game [class*="relative"][class*="h-48"] {
+    min-height: 14rem;
+  }
+
+  [class*="rounded-2xl"] [class*="relative"][class*="h-48"] {
+    min-height: 14rem;
+  }
+
+  /* ── Resource calculator rows ── */
+  .grid.grid-cols-12 > div {
+    display: flex;
+    align-items: center;
+  }
+
+  /* ── Footer: stack columns with more gap ── */
+  footer .grid {
+    gap: 2rem;
+  }
+
+  footer .grid > div {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  footer .grid > div:last-child {
+    border-bottom: none;
+  }
+
+  /* ── Floating cart bar: bigger text ── */
+  div[class*="fixed"][class*="bottom-5"] p,
+  div[class*="fixed"][class*="bottom-5"] a {
+    font-size: 0.9375rem;
+  }
+
+  /* ── Cart page: stack order summary below items ── */
+  .grid[data-cart-grid] {
+    grid-template-columns: 1fr;
+  }
+
+  /* ── Hall of Losers: more gap between cards ── */
+  .grid.hall-grid {
+    gap: 2.5rem;
+  }
+
+  /* ── Step dropdown icon circles: easier to tap ── */
+  details summary > div[class*="w-9"][class*="h-9"] {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  /* ── Bot farm quantity input area ── */
+  div[class*="w-9"][class*="h-9"][class*="rounded-full"] {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  /* ── Packages page details icon circles ── */
+  div[class*="w-11"][class*="h-11"] {
+    width: 3rem;
+    height: 3rem;
+  }
+}

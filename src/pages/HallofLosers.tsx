@@ -59,7 +59,7 @@ export default function HallOfLosers() {
             No losers on record yet. Give it time.
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 pt-12 hall-grid">
             {entries.map((entry, index) => {
               const isOpen = expandedId === entry.id;
               return (

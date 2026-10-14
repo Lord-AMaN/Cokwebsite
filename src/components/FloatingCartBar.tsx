@@ -61,12 +61,12 @@ export default function FloatingCartBar() {
   return (
     <div className="fixed bottom-5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
       <div
-        className={`pointer-events-auto flex items-center gap-4 rounded-full pl-5 pr-2 py-2.5 backdrop-blur-xl bg-gradient-to-br from-black/85 via-slate-900/80 to-blue-950/70 border shadow-lg transition-all duration-300 animate-slide-up ${
+        className={`pointer-events-auto flex items-center gap-3 sm:gap-4 rounded-full pl-4 sm:pl-5 pr-2 py-3 sm:py-2.5 backdrop-blur-xl bg-gradient-to-br from-black/85 via-slate-900/80 to-blue-950/70 border shadow-lg transition-all duration-300 animate-slide-up ${
           justAdded ? 'border-blue-400/60 shadow-blue-500/20' : 'border-white/10'
         }`}
       >
-        <div className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 relative">
-          <ShoppingCart className="w-4 h-4 text-blue-300" />
+        <div className="w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 relative">
+          <ShoppingCart className="w-5 h-5 sm:w-4 sm:h-4 text-blue-300" />
           <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-blue-500 text-white text-[10px] font-bold flex items-center justify-center">
             {count}
           </span>
@@ -79,23 +79,23 @@ export default function FloatingCartBar() {
           <p className="text-sm font-semibold text-white">${total.toFixed(2)}</p>
         </div>
 
-        <p className="text-sm font-semibold text-white sm:hidden">${total.toFixed(2)}</p>
+        <p className="text-base sm:text-sm font-semibold text-white sm:hidden">${total.toFixed(2)}</p>
 
         <Link
           to="/checkout"
-          className="inline-flex items-center gap-2 pl-4 pr-3 py-2 rounded-full font-semibold text-sm transition-all duration-200 active:scale-95 bg-blue-400 hover:bg-blue-300 text-slate-950 flex-shrink-0"
+          className="inline-flex items-center gap-2 pl-5 sm:pl-4 pr-3 py-3 sm:py-2 rounded-full font-semibold text-base sm:text-sm transition-all duration-200 active:scale-95 bg-blue-400 hover:bg-blue-300 text-slate-950 flex-shrink-0"
           style={{ fontFamily: '"Cinzel", Georgia, serif' }}
         >
           Buy Now
-          <ArrowRight className="w-3.5 h-3.5" />
+          <ArrowRight className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
         </Link>
 
         <button
           onClick={handleDismiss}
-          className="w-7 h-7 rounded-full flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex-shrink-0"
+          className="w-9 h-9 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/5 transition-colors flex-shrink-0"
           aria-label="Dismiss"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5 sm:w-4 sm:h-4" />
         </button>
       </div>
     </div>

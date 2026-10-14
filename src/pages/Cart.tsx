@@ -34,7 +34,7 @@ export default function Cart() {
         <h1 className="heading-display text-3xl font-bold text-white mb-2 mt-4">Your Cart</h1>
         <p className="text-gray-500 text-sm mb-8">{count} item{count !== 1 ? 's' : ''}</p>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-6" data-cart-grid>
           <div className="lg:col-span-2 space-y-3">
             {items.map(item => (
               <div key={item.id} className="card-game p-4 flex items-center gap-4">
