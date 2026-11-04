@@ -20,7 +20,7 @@ const FARM_CONFIG: Record<BotFarmType, { title: string; description: string; acc
     title: 'Autoshield Bot Farm',
     description: 'Everything the standard farm does, plus automatic shielding when under attack.',
     accent: 'green',
-    features: ['Auto-gathers resources', 'Auto-upgrades farm', 'Auto-shields on attack'],
+    features: ['Auto-gathers resources', 'Auto-upgrades farm', 'Auto-shields on attack','Autoshield in 0.1seconds', 'Claims Wishes , Rewards , Princess gifts , Missions', 'Trains troops automatically', 'Auto-collects resources from plots with boosts and combo', 'Auto-collects rewards from Alliance monster', 'Gathering Stats: approx 500m wood/month , 600m Food/month , 15m Mihtril/month , 50m iron/month', 'Allinace Donations(Feature added Next Month' ,'Use skills', '24x7 gathering' , 'Bot-suuport directly from me'],
   },
 };
 
