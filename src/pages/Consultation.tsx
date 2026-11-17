@@ -107,7 +107,7 @@ function BookingForm({ consultation, onClose }: { consultation: Consultation; on
         <label className="label-game">Notes (optional)</label>
         <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} className="input-game min-h-[80px] resize-none" placeholder="What do you want to focus on?" />
       </div>
-      <button type="submit" className="btn-primary w-full">Confirm Booking — ${consultation.price}</button>
+      <button type="submit" className="btn-primary w-full">Confirm Booking: ${consultation.price}</button>
     </form>
   );
 }

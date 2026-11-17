@@ -5,6 +5,10 @@ import {
   
   
 } from "lucide-react";
+
+const RESOURCE_NOTICE =
+  'Resources available in k155 , 156 , 159 directly , whie other kingdoms like k160 are available via plunder.';
+
 export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
@@ -30,6 +34,74 @@ export default function Hero() {
           className="h-auto max-w-full w-[240px] md:w-[260px] object-contain"
         />
         </div>
+ {/* Resource availability announcement */}
+<div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+  <div className="relative px-4 py-1.5">
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,160,23,0.14),transparent_70%)] blur-md"
+    />
+
+    {/* Left wooden roller */}
+    <div
+      aria-hidden
+      className="absolute bottom-0 left-0 top-0 z-20 w-3 rounded-full shadow-[0_0_0_1px_rgba(212,160,23,0.35),0_6px_14px_rgba(0,0,0,0.65)]"
+      style={{
+        backgroundImage:
+          'linear-gradient(90deg, #2b1809 0%, #7a4a24 35%, #c79a55 52%, #6b3f1e 72%, #241206 100%)',
+      }}
+    >
+      <span className="absolute -top-2 left-1/2 h-3 w-5 -translate-x-1/2 rounded-full bg-gradient-to-b from-[#c79a55] to-[#6b3f1e] shadow-[0_2px_4px_rgba(0,0,0,0.55)]" />
+      <span className="absolute -bottom-2 left-1/2 h-3 w-5 -translate-x-1/2 rounded-full bg-gradient-to-t from-[#c79a55] to-[#6b3f1e] shadow-[0_2px_4px_rgba(0,0,0,0.55)]" />
+    </div>
+
+    {/* Right wooden roller */}
+    <div
+      aria-hidden
+      className="absolute bottom-0 right-0 top-0 z-20 w-3 rounded-full shadow-[0_0_0_1px_rgba(212,160,23,0.35),0_6px_14px_rgba(0,0,0,0.65)]"
+      style={{
+        backgroundImage:
+          'linear-gradient(90deg, #241206 0%, #6b3f1e 28%, #c79a55 48%, #7a4a24 65%, #2b1809 100%)',
+      }}
+    >
+      <span className="absolute -top-2 left-1/2 h-3 w-5 -translate-x-1/2 rounded-full bg-gradient-to-b from-[#c79a55] to-[#6b3f1e] shadow-[0_2px_4px_rgba(0,0,0,0.55)]" />
+      <span className="absolute -bottom-2 left-1/2 h-3 w-5 -translate-x-1/2 rounded-full bg-gradient-to-t from-[#c79a55] to-[#6b3f1e] shadow-[0_2px_4px_rgba(0,0,0,0.55)]" />
+    </div>
+
+    {/* Parchment scroll */}
+    <div className="relative mx-1.5 overflow-hidden border-y-2 border-[#c9a96a] bg-[#f2e0b9] shadow-[0_16px_35px_-18px_rgba(0,0,0,0.9),inset_0_0_35px_rgba(122,84,36,0.16)]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-80"
+        style={{
+          backgroundImage:
+            'radial-gradient(ellipse at 18% 12%, rgba(255,255,255,0.55), transparent 42%), radial-gradient(ellipse at 82% 88%, rgba(139,93,38,0.2), transparent 55%), repeating-linear-gradient(0deg, rgba(106,73,32,0.055) 0px, rgba(106,73,32,0.055) 1px, transparent 1px, transparent 4px)',
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-[3px] rounded-[2px] border border-[#a9813f]/40"
+      />
+
+      <div className="relative z-10 flex items-center gap-3 px-4 py-3 sm:px-5">
+        <span
+          aria-hidden
+          className="flex h-8 w-8 shrink-0 -rotate-3 items-center justify-center rounded-[3px] border-2 border-[#7f1d14] bg-[#b3261e] text-[15px] font-bold text-[#f8e7c0] shadow-[0_2px_6px_rgba(80,15,10,0.45),inset_0_0_0_1px_rgba(248,231,192,0.25)]"
+          style={{ fontFamily: '"SimSun", "Songti SC", serif' }}
+        >
+          告
+        </span>
+
+        <p
+          className="relative z-10 min-w-0 flex-1 text-sm font-medium leading-relaxed tracking-wide text-[#3a2715] sm:text-base"
+          style={{ fontFamily: '"Georgia", "Times New Roman", serif' }}
+        >
+          {RESOURCE_NOTICE}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
 
       {/* Skins Section */}
 <div className="max-w-2xl mx-auto mb-10 animate-slide-up" style={{ animationDelay: '0.1s' }}>
@@ -150,7 +222,7 @@ export default function Hero() {
     </div>
 
     {/* Button: Stays aligned to the right because of the parent flex-row */}
-    <Link to="/Castles" className="inline-flex items-center gap-4 pl-4 pr-2 py-3 sm:py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
+    <Link to="/bot-farms" className="inline-flex items-center gap-4 pl-4 pr-2 py-3 sm:py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 transition-colors duration-200 active:scale-95 font-semibold text-base text-black w-full sm:w-auto justify-center sm:justify-start" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
       Bot Farms
       <span className="w-8 h-8 rounded-full bg-orange-900 flex items-center justify-center flex-shrink-0">
         <ArrowUpRight className="w-4 h-4 text-white" />

@@ -93,7 +93,7 @@ export default function Castles() {
               <h3 className="heading-display text-lg font-bold text-white mb-1">Want to Sell Your Account?</h3>
               <p className="text-sm text-gray-400 leading-relaxed mb-4">
                 Accounts are listed manually after we verify them. To list your castle, join our Discord and open a
-                ticket — the same process used for buying packages. Follow the steps on our Packages page to see
+                ticket, the same process used for buying packages. Follow the steps on our Packages page to see
                 exactly how to create a ticket.
               </p>
               <Link

@@ -129,7 +129,7 @@ export default function Admin() {
               onDelete={() => deleteItem('skins', item.id!)}
               onToggle={() => toggleFeatured('skins', item)}
               onMove={(d) => moveItem('skins', item, d, arr)}
-              title={item.name} subtitle={`${item.hero_name} — ${item.rarity}`} price={item.price} featured={item.is_featured}
+              title={item.name} subtitle={`${item.hero_name}, ${item.rarity}`} price={item.price} featured={item.is_featured}
             />
           ))}
           {tab === 'consultations' && consultations.map((item, _i, arr) => (
@@ -138,7 +138,7 @@ export default function Admin() {
               onDelete={() => deleteItem('consultations', item.id!)}
               onToggle={() => toggleFeatured('consultations', item)}
               onMove={(d) => moveItem('consultations', item, d, arr)}
-              title={item.service_name} subtitle={`${item.category} — ${item.duration_minutes} min`} price={item.price} featured={item.is_featured}
+              title={item.service_name} subtitle={`${item.category}, ${item.duration_minutes} min`} price={item.price} featured={item.is_featured}
             />
           ))}
         </div>

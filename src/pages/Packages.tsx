@@ -38,7 +38,7 @@ export default function Packages() {
                 </div>
                 <div>
                   <h3 className="heading-display text-lg font-bold text-white">
-                    Step 1 — Join Our Discord
+                    Step 1: Join Our Discord
                   </h3>
                   <p className="text-xs text-gray-400">
                     Where every order gets handled
@@ -94,7 +94,7 @@ export default function Packages() {
                 </div>
                 <div>
                   <h3 className="heading-display text-lg font-bold text-white">
-                    Step 2 — Open a Ticket
+                    Step 2: Open a Ticket
                   </h3>
                   <p className="text-xs text-gray-400">
                     Head to #tickets and create one

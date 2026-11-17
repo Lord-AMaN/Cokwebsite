@@ -1,12 +1,21 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
-import { PlayCircle, ShoppingCart, Check, Minus, Plus, Bot, Infinity as InfinityIcon } from 'lucide-react';
+import BeamBorder from '@/components/ui/borderbeamcard';
+import {
+  ShoppingCart,
+  Check,
+  Minus,
+  Plus,
+  Bot,
+  ShieldCheck,
+  ArrowRight,
+} from 'lucide-react';
 import VideoModal from '../components/VideoModal';
 import { getYouTubeId } from '../lib/youtube';
 import { Loader } from '../components/LoadingSpinner';
 
-type BotFarmType =  'autoshield';
+type BotFarmType = 'autoshield';
 
 type BotFarmSettings = {
   id: string;
@@ -15,12 +24,38 @@ type BotFarmSettings = {
   video_url: string | null;
 };
 
-const FARM_CONFIG: Record<BotFarmType, { title: string; description: string; accent: 'blue' | 'green'; features: string[] }> = {
+type FarmConfig = {
+  title: string;
+  description: string;
+  features: string[];
+};
+
+const FARM_CONFIG: Record<BotFarmType, FarmConfig> = {
   autoshield: {
     title: 'Autoshield Bot Farm',
-    description: 'Everything the standard farm does, plus automatic shielding when under attack.',
-    accent: 'green',
-    features: ['Auto-gathers resources', 'Auto-upgrades farm', 'Auto-shields on attack','Autoshield in 0.1seconds', 'Claims Wishes , Rewards , Princess gifts , Missions', 'Trains troops automatically', 'Auto-collects resources from plots with boosts and combo', 'Auto-collects rewards from Alliance monster', 'Gathering Stats: approx 500m wood/month , 600m Food/month , 15m Mihtril/month , 50m iron/month', 'Allinace Donations(Feature added Next Month' ,'Use skills', '24x7 gathering' , 'Bot-suuport directly from me'],
+    description:
+      'Put your farm on autopilot. Gathering, upgrading, shielding and reward collection are all handled. Includes a 2-day free trial so you can see it work before you commit.',
+    features: [
+      'Auto teleport',
+      'Resources visible on telegram',
+      'Auto-gathers resources',
+      'Auto-upgrades farm',
+      'Trains troops automatically',
+      'Auto-collects resources from plots with boosts and combo',
+      'Uses skills',
+      '24/7 gathering',
+      'Auto-shields on attack',
+      'Autoshield in 0.1 seconds',
+      'Claims Wishes, Rewards, Princess gifts and Missions',
+      'Auto-collects rewards from Alliance monster',
+      'Auto-collects Daily Chests, Missions and Legendary level rewards',
+      'Alliance Donations (feature added next month)',
+      'Gathering stats: approx. 500M wood, 600M food, 15M mithril and 50M iron per month',
+      'You can provide your farms or we can create new',
+      'Google, Guopan and x7 supported',
+      '2 days trial and full refund if needed',
+      'Bot support directly from me',
+    ],
   },
 };
 
@@ -41,7 +76,6 @@ function FarmCard({
   const config = FARM_CONFIG[type];
   const price = settings ? Number(settings.price) : 0;
   const total = price * quantity;
-  const isAutoshield = type === 'autoshield';
 
   const setQty = (n: number) => setQuantity(Math.max(1, n));
 
@@ -61,111 +95,165 @@ function FarmCard({
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const accentBorder = isAutoshield ? 'hover:border-green-400/40' : 'hover:border-blue-400/40';
-  const accentBg = isAutoshield ? 'hover:bg-green-500/10' : 'hover:bg-blue-500/10';
-  const badgeBorder = isAutoshield ? 'border-green-400/40' : 'border-blue-400/40';
-  const badgeBg = isAutoshield ? 'bg-green-500/10 text-green-200' : 'bg-blue-500/10 text-blue-200';
-  const priceColor = isAutoshield ? 'text-green-300' : 'text-blue-300';
-  const inputFocus = isAutoshield ? 'focus:border-green-400/50' : 'focus:border-blue-400/50';
-  const iconHover = isAutoshield ? 'hover:text-white hover:border-green-400/40' : 'hover:text-white hover:border-blue-400/40';
-  const buttonBg = isAutoshield ? 'bg-green-400 hover:bg-green-300' : 'bg-blue-400 hover:bg-blue-300';
-  const buttonIconBg = isAutoshield ? 'bg-green-700' : 'bg-blue-700';
-
   return (
-    <div className="rounded-2xl overflow-hidden backdrop-blur-xl bg-gradient-to-br from-black/70 via-slate-900/60 to-blue-950/50 border border-white/10 shadow-lg">
-      <div className="relative h-48 bg-black/40 flex items-center justify-center">
-        {isAutoshield ? (
-          <Bot className="w-16 h-16 text-green-400/50" />
-        ) : (
-          <Bot className="w-16 h-16 text-blue-400/50" />
-        )}
-        <div className={`absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${badgeBorder} ${badgeBg}`}>
-          <InfinityIcon className="w-3.5 h-3.5" /> Unlimited Stock
+    <div className="relative">
+      <BeamBorder
+        size="pulse-outside"
+        colorVariant="mono"
+        theme="dark"
+        active
+        strength={1}
+        duration={1.1}
+        beamWidth={2}
+        className="w-full"
+      >
+        <div className="relative overflow-hidden rounded-2xl bg-[#0a0a0a]">
+          <div className="relative z-10">
+            {/* Header */}
+            <div className="flex flex-col gap-6 border-b border-white/10 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:p-10 lg:pb-8">
+              <div className="flex min-w-0 items-start gap-4 sm:gap-5">
+                <Bot className="h-16 w-16 shrink-0 text-white/70" />
+                <div className="min-w-0">
+                  <h3 className="heading-display text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
+                    {config.title}
+                  </h3>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-[#a3a3a3] sm:text-base">
+                    {config.description}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  if (!settings?.video_url) return;
+                  if (getYouTubeId(settings.video_url)) {
+                    setShowVideo(true);
+                  } else {
+                    window.open(settings.video_url, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+                disabled={!settings?.video_url}
+                className="group/btn relative w-full shrink-0 overflow-hidden rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-300 py-3 pl-6 pr-2 font-semibold shadow-[0_12px_35px_-12px_rgba(16,185,129,0.95)] transition-all duration-200 hover:brightness-110 hover:shadow-[0_16px_45px_-10px_rgba(16,185,129,1)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 lg:w-auto"
+                style={{ fontFamily: '"Cinzel", Georgia, serif' }}
+              >
+                <span className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -translate-x-full -skew-x-12 bg-white/35 blur-md transition-transform duration-700 group-hover/btn:translate-x-[420%] motion-reduce:transition-none" />
+                <span className="relative flex items-center justify-center gap-3">
+                  <span className="text-sm text-slate-950">Watch it in action</span>
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-800">
+                    <ArrowRight className="h-4 w-4 text-white" />
+                  </span>
+                </span>
+              </button>
+            </div>
+
+            {/* Features and purchase */}
+            <div className="grid gap-8 bg-gradient-to-b from-[#111111]/80 to-[#1c1c1c]/80 p-6 sm:p-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-10 lg:p-10">
+              <div className="order-2 lg:order-1">
+                <h4 className="heading-display text-xl font-bold text-white sm:text-2xl">Features</h4>
+
+                <ul className="mt-5 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
+                  {config.features.map(feature => (
+                    <li key={feature} className="flex items-start gap-2 text-sm leading-snug text-[#a3a3a3]">
+                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#4ade80]" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Purchase panel */}
+              <div className="relative order-1 rounded-2xl border border-emerald-400/25 bg-gradient-to-b from-emerald-500/[0.12] via-emerald-950/30 to-black/40 p-5 shadow-[0_25px_70px_-30px_rgba(16,185,129,0.65)] backdrop-blur sm:p-6 lg:order-2">
+                <div
+                  aria-hidden
+                  className="absolute inset-x-8 -top-px h-px bg-gradient-to-r from-transparent via-emerald-300/90 to-transparent"
+                />
+
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-300/80">
+                    Price per farm
+                  </p>
+                  <p className="heading-display mt-1 text-3xl font-bold text-white sm:text-4xl">
+                    ${price.toFixed(2)}
+                  </p>
+                </div>
+
+                <div className="mt-5">
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-gray-300">Number of farms</span>
+                    <span className="text-[11px] text-gray-500">Add as many as you need</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/40 p-1.5">
+                    <button
+                      onClick={() => setQty(quantity - 1)}
+                      aria-label="Decrease number of farms"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition-colors hover:border-emerald-400/40 hover:bg-emerald-500/10 hover:text-white active:scale-95"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      value={quantity}
+                      onChange={event => setQty(parseInt(event.target.value, 10) || 1)}
+                      aria-label="Number of farms"
+                      className="w-16 appearance-none border-0 bg-transparent text-center text-lg font-bold text-white focus:outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <button
+                      onClick={() => setQty(quantity + 1)}
+                      aria-label="Increase number of farms"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition-colors hover:border-emerald-400/40 hover:bg-emerald-500/10 hover:text-white active:scale-95"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-4">
+                  <span className="text-sm font-semibold text-gray-300">Total</span>
+                  <span className="heading-display text-3xl font-bold text-emerald-300 drop-shadow-[0_0_20px_rgba(16,185,129,0.45)]">
+                    ${total.toFixed(2)}
+                  </span>
+                </div>
+
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!settings}
+                  className="group/btn relative mt-5 w-full overflow-hidden rounded-full bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-300 py-3 pl-6 pr-2 font-semibold shadow-[0_12px_35px_-12px_rgba(16,185,129,0.95)] transition-all duration-200 hover:brightness-110 hover:shadow-[0_16px_45px_-10px_rgba(16,185,129,1)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <span className="pointer-events-none absolute inset-y-0 left-0 w-1/3 -translate-x-full -skew-x-12 bg-white/35 blur-md transition-transform duration-700 group-hover/btn:translate-x-[420%] motion-reduce:transition-none" />
+                  <span className="relative flex items-center justify-center gap-3">
+                    <span
+                      className="text-sm text-slate-950"
+                      style={{ fontFamily: '"Cinzel", Georgia, serif' }}
+                    >
+                      {added ? 'Added to Cart' : 'Add to Cart'}
+                    </span>
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-800">
+                      {added ? (
+                        <Check className="h-4 w-4 text-white" />
+                      ) : (
+                        <ShoppingCart className="h-4 w-4 text-white" />
+                      )}
+                    </span>
+                  </span>
+                </button>
+
+                <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-[11px] text-gray-500">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400/80" />
+                  2-day trial and full refund available
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-
-      <div className="p-6">
-        <h3 className="heading-display text-xl font-bold text-white mb-1">{config.title}</h3>
-        <p className="text-sm text-gray-400 mb-3">{config.description}</p>
-
-        <ul className="mb-5 space-y-1.5">
-          {config.features.map(f => (
-            <li key={f} className="flex items-center gap-2 text-xs text-gray-300">
-              <Check className={`w-3.5 h-3.5 flex-shrink-0 ${isAutoshield ? 'text-green-400' : 'text-blue-400'}`} />
-              {f}
-            </li>
-          ))}
-        </ul>
-
-        <button
-          onClick={() => {
-            if (!settings?.video_url) return;
-            if (getYouTubeId(settings.video_url)) {
-              setShowVideo(true);
-            } else {
-              window.open(settings.video_url, '_blank', 'noopener,noreferrer');
-            }
-          }}
-          disabled={!settings?.video_url}
-          className={`w-full mb-5 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-200 active:scale-95 bg-white/5 border border-white/10 text-gray-200 ${accentBorder} ${accentBg} disabled:opacity-40 disabled:cursor-not-allowed`}
-          style={{ fontFamily: '"Cinzel", Georgia, serif' }}
-        >
-          <PlayCircle className="w-4 h-4" />
-          View Video
-        </button>
-
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-gray-400">Number of Farms</span>
-          <span className="text-xs text-gray-500">${price.toFixed(2)} / farm</span>
-        </div>
-
-        <div className="flex items-center justify-center gap-3 mb-5">
-          <button
-            onClick={() => setQty(quantity - 1)}
-            className={`w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 transition-colors ${iconHover}`}
-          >
-            <Minus className="w-4 h-4" />
-          </button>
-          <input
-            type="number"
-            min={1}
-            value={quantity}
-            onChange={e => setQty(parseInt(e.target.value, 10) || 1)}
-            className={`w-20 text-center rounded-lg px-3 py-2 bg-black/30 backdrop-blur border border-white/10 text-white font-semibold focus:outline-none ${inputFocus}`}
-          />
-          <button
-            onClick={() => setQty(quantity + 1)}
-            className={`w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-300 transition-colors ${iconHover}`}
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between mb-5 pt-4 border-t border-white/10">
-          <span className="text-white font-semibold">Total</span>
-          <span className={`heading-display text-2xl font-bold ${priceColor}`}>${total.toFixed(2)}</span>
-        </div>
-
-        <button
-          onClick={handleAddToCart}
-          disabled={!settings}
-          className={`w-full inline-flex items-center justify-center gap-3 pl-6 pr-2 py-2 rounded-full font-semibold transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed ${buttonBg}`}
-        >
-          <span className="text-sm text-slate-950" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>
-            {added ? 'Added to Cart' : 'Add to Cart'}
-          </span>
-          <span className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${buttonIconBg}`}>
-            {added ? <Check className="w-4 h-4 text-white" /> : <ShoppingCart className="w-4 h-4 text-white" />}
-          </span>
-        </button>
-      </div>
+      </BeamBorder>
 
       {showVideo && settings?.video_url && (
         <VideoModal
           url={settings.video_url}
           title={config.title}
           onClose={() => setShowVideo(false)}
-          accent={isAutoshield ? 'green' : 'blue'}
+          accent="green"
         />
       )}
     </div>
@@ -184,30 +272,28 @@ export default function BotFarms() {
     })();
   }, []);
 
- 
   const autoshield = rows.find(r => r.type === 'autoshield');
 
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center pt-16">
-        <Loader className="w-8 h-8 text-blue-400 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center pt-16 bg-black">
+        <Loader className="w-8 h-8 text-white/60 animate-spin" />
       </div>
     );
 
   return (
-    <div className="pt-20 pb-24 min-h-screen">
+    <div className="pt-20 pb-24 min-h-screen bg-black">
       <div className="container-game">
         <div className="text-center mb-12 mt-8">
-          <span className="text-sm font-semibold text-crimson-400 tracking-wider uppercase">Automation</span>
+          <span className="text-sm font-semibold text-[#a3a3a3] tracking-wider uppercase">Automation</span>
           <h1 className="heading-display text-4xl md:text-6xl font-bold text-white mt-2 mb-4">Bot Farms</h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Buy as many bot farms as you need — always in stock, no limits.
+          <p className="text-[#a3a3a3] max-w-2xl mx-auto">
+            Buy as many bot farms as you need. Always in stock, no limits.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+        <div className="relative max-w-5xl mx-auto">
           <FarmCard type="autoshield" settings={autoshield} onAdded={() => {}} />
-          {/* <FarmCard type="normal" settings={normal} onAdded={() => {}} /> */}
         </div>
       </div>
     </div>
